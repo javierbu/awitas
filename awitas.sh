@@ -27,6 +27,7 @@ trap "salida" EXIT
 ### Aqui se guardaran logs, variables y demas monsergas.
 mkdir /tmp/awitas &>/dev/null
 pwd_local=$(pwd)
+mi_pid=$$
 function salida () {
 echo;echo -e "${AMARILLO}[::]${BLANCO} Limpieza!"
 tput cnorm
@@ -54,7 +55,7 @@ touch /tmp/hostapd.psk &>/dev/null
 cp resolv.conf ${pwd}resolv.conf &>/dev/null
 dnsmasq -C dnsmasq.conf -q --log-facility=${pwd}dnsmasq -r ${pwd}resolv.conf &
 dnsmasq_pid=$!
-bash berate_mod --vanilla --no-dnsmasq $iface_ap $iface_net $nombre_ap &>${pwd}berate &
+bash berate_mod --vanilla --no-dnsmasq $iface_ap $iface_net "${nombre_ap}" &>${pwd}berate &
 berate_pid=$!
 sleep 10
 grep -v WebRoot nds.conf | grep -v GatewayInterface  > nodogsplash.conf
@@ -149,7 +150,7 @@ if [ $? -ne 0 ];then
 fi
 if ( grep -q "network=" ${pwd}pbc.conf ) ;
               then
-                cat ${pwd}pbc.conf | grep $nombre_ap &>/dev/null
+                cat ${pwd}pbc.conf | grep "${nombre_ap}" &>/dev/null
                 if [ $? -eq 0 ]; then
                         escuchar_wps
                 fi
@@ -163,7 +164,7 @@ if ( grep -q "network=" ${pwd}pbc.conf ) ;
 		break
 fi
 done
-kill $pid_comprobar_wpa &>/dev/null
+kill $mi_pid &>/dev/null && kill $pid_comprobar_wpa &>/dev/null && exit 
 kill $$ &>/dev/null
 exit && exit
 }
@@ -297,6 +298,7 @@ if [ $tipo -ne 1 ] && [ $tipo -ne 2 ];then
 fi
 echo;echo -ne "${AMARILLO}[::]${BLANCO} Nombre el punto de acceso que vamos a crear, sin espacios por favor. (Necesario): "
 read nombre_ap
+echo "${nombre_ap}" >${pwd}nombre_ap &>/dev/null
 echo -ne "${AMARILLO}[::]${BLANCO} Iface con la que daremos internet su fuera necesario. Si no tienes ni idea de que es esto, da enter y ya: "
 read iface_net
 ifconfig | grep mtu | grep -v iface_ap | grep -v iface_dos | cut -d ':' -f 1 > /tmp/ifaces
