@@ -39,6 +39,11 @@ cd nodogsplash
 make
 sudo make install
 ```
+Nos vamos a nuestra carpeta /home
+```
+cd
+
+```
 
 Descargamos awitas
 ```
