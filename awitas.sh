@@ -92,7 +92,7 @@ touch /tmp/hostapd.psk &>/dev/null
 cp resolv.conf ${pwd}resolv.conf &>/dev/null
 dnsmasq -C dnsmasq.conf -q --log-facility=${pwd}dnsmasq -r ${pwd}resolv.conf &
 dnsmasq_pid=$!
-bash berate_mod --vanilla --no-dnsmasq $iface_ap $iface_net $nombre_ap 00000000 &>${pwd}berate &
+bash berate_mod --vanilla --no-dnsmasq $iface_ap $iface_net "${nombre_ap}" 00000000 &>${pwd}berate &
 berate_pid=$!
 sleep 10
 grep -v WebRoot nds.conf | grep -v GatewayInterface  > nodogsplash.conf
