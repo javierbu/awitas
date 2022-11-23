@@ -296,7 +296,7 @@ if [ $tipo -ne 1 ] && [ $tipo -ne 2 ];then
 	read
 	config_ap
 fi
-echo;echo -ne "${AMARILLO}[::]${BLANCO} Nombre el punto de acceso que vamos a crear, sin espacios por favor. (Necesario): "
+echo;echo -ne "${AMARILLO}[::]${BLANCO} Nombre el punto de acceso que vamos a crear. (Necesario): "
 read nombre_ap
 echo "${nombre_ap}" >${pwd}nombre_ap &>/dev/null
 echo -ne "${AMARILLO}[::]${BLANCO} Iface con la que daremos internet su fuera necesario. Si no tienes ni idea de que es esto, da enter y ya: "
