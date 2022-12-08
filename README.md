@@ -18,12 +18,18 @@ De momento no soporta 5Ghz. No tengo dispositivo para ello. Quizá en un futuro.
 # Requerimientos
 Es preciso contar con al menos 2 dispositivos wifi. 1 de ellos debe soportar el modo punto de acceso y el otro debe permitir inyección de paquetes.
 
-Está desarrollado sobre kali linux. Solo se ha probado en kali linux de escritorio, y en su versión para Raspberry. Si dispones de una Raspberry, puedes echar un vistazo al proyecto STAPi (awitas está integrado).
- https://github.com/javierbu/STAPi_r/tree/main/scripts
+Está desarrollado sobre kali linux. Solo se ha probado en kali linux de escritorio, y en su versión para Raspberry. Si dispones de una Raspberry, puedes echar un vistazo al proyecto STAPi (awitas está integrado).<br>
+ https://github.com/javierbu/STAPi_r
 
 # Documentación
 
+Instalación y uso de awitas: <br>
+https://www.youtube.com/watch?v=3DR7mcSR4Oo
+
 # Soporte
+
+Cualquier duda, sugerencia, problema o comentario, este es el hilo del soporte de awitas:<br>
+https://www.wifi-libre.com/topic-1692-awitas-ataque-a-wps-con-rogueap-potegido-con-wpa.html#p16024
 
 # Instalación
 
