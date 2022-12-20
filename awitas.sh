@@ -271,10 +271,10 @@ if [ $canal -eq $canal_nuevo ];then
 	monitor poner $canal >/dev/null
 	echo -e "${AMARILLO}[DoS]${BLANCO}	El cliente sigue en el canal${CYAN} ${canal}${BLANCO}. Seguimos el ataque..."
 else
-	echo -e "${AMARILLO}[DoS]${BLANCO}	El cliente se ha cambiado al canal${CYAN} ${canal}${BLANCO}. Cambiamos de canal..."
+	echo -e "${AMARILLO}[DoS]${BLANCO}	El cliente se ha cambiado al canal${CYAN} ${canal_nuevo}${BLANCO}. Cambiamos de canal..."
 	canal=$canal_nuevo
 	monitor poner $canal >/dev/null
-	echo -e "${AMARILLO}[::]${BLANCO} reiniciando DoS..."
+	echo -e "${AMARILLO}[::]${BLANCO}	Reiniciando DoS..."
 fi
 aireplay-ng -0 $desaut -a $macap -c $mac_estacion $iface_mon --ignore-negative-one &>>${pwd}aireplay
 pid_aireplay=$!
