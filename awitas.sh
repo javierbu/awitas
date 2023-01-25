@@ -42,6 +42,7 @@ tput cnorm
 echo;echo -e "${VERDE}[::]${BLANCO} Quitando modo monitor si esta puesto...!"
 monitor quitar &>/dev/null
 echo -e "${VERDE}[::]${BLANCO} Reiniciando NetworkManager..."
+systemctl restart NetworkManager &>/dev/null
 for proceso in nodogsplash berate dnsmasq hostapd wpa_supplicant ;do
 	for i in `ps -e | grep $proceso | grep -v grep | awk -F ' ' '{print $1}'`;do
 		echo -e "${VERDE}[::]${BLANCO} Matando PID $i de $proceso."
