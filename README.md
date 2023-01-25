@@ -39,7 +39,7 @@ https://www.wifi-libre.com/topic-1692-awitas-ataque-a-wps-con-rogueap-potegido-c
 
 Instalamos dependencias
 ```
-sudo apt update && sudo apt install mdk4 hostapd git aircrack-ng libmicrohttpd-dev build-essential
+sudo apt update && sudo apt install mdk4 hostapd git aircrack-ng libmicrohttpd-dev build-essential net-tools
 ```
 
 Descargamos e instalamos nodogsplash
