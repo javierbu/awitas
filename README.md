@@ -10,72 +10,69 @@
 
 Ataque WPS transparente con rogue AP 
 
-Awitas es un script para, mediante un ataque evil twin, consigamos la llave wpa de un cliente. Solo necesitamos que el cliente pulse el botón de WPS de su dispositivo.
-Podemos crear un falso punto de acceso con proteccion wpa, o podemos crear uno abierto.
-El protegido es para los clientes windows, para dar credibilidad al engaño.
+Es una herramienta de auditría wireless válida para profesionales y para auditar nuestras propias redes y su seguridad.
+
+Un script guiado para llevar a cabo el ataque evil twin o rogue AP. La diferencia es que no se le pide la clave WPA al usuario. En su lugar se le pide que pulse el botón WPS de su router.
+Para que el atque sea efectivo se requiere cercanía a nuestros objetivos y que el usuario atacado caiga en la trampa que se le monta.
+
+Cuenta con la peculiaridad de que a los clientes windows (10 y 11) se les puede montar un punto de acceso falso protegido con WPA, lo que hace más creíble la trampa. La conexión para el usuario es transparente y mediante WPS.
+
+Awitas está inspirado en el trabajod e Koala:
+https://github.com/Koala633/hostbase/tree/master/hostbase-1.4ES
 
 # Novedades:
 - Soporte para 2,4 GHz y 5 GHz.
-- Elección entre aireplay para ataque dirigido a un cliente, o mdk4 para ataque a todos los clientes de la red.
-- Soporte otros sistemas operativos: probado en Parrot (v.5.1.2) tanto en versión para raspberry como versión escritorio. Kali linux (v.2022.4) Tanto en versión para raspberry como en versión escritorio. RaspiOS bullseye (2022-9-22). Debería funcionar en cualquier sistema basado en debian, y posiblemente en otros.
+- Elección entre aireplay para ataque dirigido a un cliente, o mdk4 para ataque a todos los clientes de la red. (No en openwrt)
+- Dejamos de depender de programas externos a los repositorios.
+- Compatibilidad con OpenWrt y Wifislax. Probado en Openwrt, wifislax, kali_arm Parrot_arm, kali, parrot, raspOS.
+- Mejoras en la información del target.
+- Mejoras varias.
 
 # Requerimientos
 Es preciso contar con al menos 2 dispositivos wifi. 1 de ellos debe soportar el modo punto de acceso y el otro debe permitir inyección de paquetes.
 
- Si dispones de una Raspberry, puedes echar un vistazo al proyecto STAPi (awitas está integrado).<br>
- https://github.com/javierbu/STAPi_r
-
 # Documentación
-
-Instalación y uso de awitas (version antigua): <br>
+ (Versión desactualizada.)
+Instalación y uso de awitas: <br>
 https://www.youtube.com/watch?v=3DR7mcSR4Oo
 
 # Soporte
 
-Cualquier duda, sugerencia, problema o comentario, este es el hilo del soporte de awitas:<br>
-https://www.wifi-libre.com/topic-1692-awitas-ataque-a-wps-con-rogueap-potegido-con-wpa.html#p16024
 
-# Instalación
 
-Instalamos dependencias
-```
-sudo apt update && sudo apt install mdk4 hostapd git aircrack-ng libmicrohttpd-dev build-essential net-tools
-```
+# Instalación 
 
-Descargamos e instalamos nodogsplash
-```
-git clone https://github.com/nodogsplash/nodogsplash.git
-cd nodogsplash
-make
-sudo make install
-```
-Nos vamos a nuestra carpeta /home
-```
-cd
 
-```
-
-Descargamos awitas
+Descargamos proyecto
 ```
 git clone https://github.com/javierbu/awitas.git
-```
-
-Entramos en la carpeta y usamos
-```
 cd awitas
-sudo ./awitas
+```
+Instalamos dependencias:
+
+En debian ( Kali, Parrot, raspOS )
+```
+sudo bash dependencias.sh
+```
+En openwrt
+```
+ash dependencias_ow.sh
+```
+En Wifislax no es necesario instalar dependencias.
+
+Uso
+```
+sudo bash awitas.sh
 ```
 
 # Notas de interés
 
-- El script está pensado para raspberry administrada por ssh en un principio. Por ello todo se ejecuta desde una sola consola sin ventanas emergentes.
 - En la cabecera del script puedes configurar algunas cosas que quizá te vengan bien.
 - Se crea una carpeta /tmp/awitas/ donde se almacenan distintas variables y salidas de comandos importantes. Muy útil para depurar si algo no funciona.
 - No todos los chipsets funcionan de igual manera. Asegúrate que el chipset de tu dispositivo es capaz de hacer lo que le vas a pedir.
 
 # Sobre chipsets:
 
-Se agradece cualquier información realitva a lo chipsets de los dispositivos usados. Pueden usar el hilo de soporte o cualquier forma de contacto.
 
 - **8814au.** https://github.com/morrownr/8814au . Funciona perfectamente tanto en 2,4 GHz como en 5 GHz. Es válido tanto para la creación de punto de acceso como para el ataque DoS.
 - **8812au.** https://github.com/morrownr/8812au-20210629 . Funciona muy bien para la creación del punto de acceso tanto en 5GHz como en 2,4 GHz. No funciona para el ataque DoS. 
