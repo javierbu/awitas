@@ -1,17 +1,10 @@
 
 # awitas
-````
-   __ ___      _(_) |_ __ _ ___ 
-  / _` \ \ /\ / / | __/ _` / __|
- | (_| |\ V  V /| | || (_| \__ \
-  \__,_| \_/\_/ |_|\__\__,_|___/ byTux0
-  Ataque WPS transparente con rogue AP   
 
-````
 ![awitas](https://i.postimg.cc/rmgdPd6t/awwitas.png"awitas")
 Ataque WPS transparente con rogue AP 
 
-Es una herramienta de auditría wireless válida para profesionales y para auditar nuestras propias redes y su seguridad.
+Es una herramienta de auditoría wireless válida para profesionales y para auditar nuestras propias redes y su seguridad.
 
 Un script guiado para llevar a cabo el ataque evil twin o rogue AP. La diferencia es que no se le pide la clave WPA al usuario. En su lugar se le pide que pulse el botón WPS de su router.
 Para que el atque sea efectivo se requiere cercanía a nuestros objetivos y que el usuario atacado caiga en la trampa que se le monta.
