@@ -8,8 +8,7 @@
   Ataque WPS transparente con rogue AP   
 
 ````
-![awitas](https://i.postimg.cc/MTdQ1mCM/awitas.png "awitas")
-
+![awitas](https://i.postimg.cc/J0MZHcRv/awitass.png"awitas")
 Ataque WPS transparente con rogue AP 
 
 Es una herramienta de auditría wireless válida para profesionales y para auditar nuestras propias redes y su seguridad.
