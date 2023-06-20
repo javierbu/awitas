@@ -1,12 +1,14 @@
+
 # awitas
-```
+````
    __ ___      _(_) |_ __ _ ___ 
   / _` \ \ /\ / / | __/ _` / __|
  | (_| |\ V  V /| | || (_| \__ \
   \__,_| \_/\_/ |_|\__\__,_|___/ byTux0
   Ataque WPS transparente con rogue AP   
 
-```
+````
+![awitas](https://i.postimg.cc/MTdQ1mCM/awitas.png "awitas")
 
 Ataque WPS transparente con rogue AP 
 
@@ -20,6 +22,9 @@ Cuenta con la peculiaridad de que a los clientes windows (10 y 11) se les puede 
 Awitas está inspirado en el trabajod e Koala:
 https://github.com/Koala633/hostbase/tree/master/hostbase-1.4ES
 
+------------
+
+
 # Novedades:
 - Soporte para 2,4 GHz y 5 GHz.
 - Elección entre aireplay para ataque dirigido a un cliente, o mdk4 para ataque a todos los clientes de la red. (No en openwrt)
@@ -28,15 +33,31 @@ https://github.com/Koala633/hostbase/tree/master/hostbase-1.4ES
 - Mejoras en la información del target.
 - Mejoras varias.
 
+------------
+
+
 # Requerimientos
 Es preciso contar con al menos 2 dispositivos wifi. 1 de ellos debe soportar el modo punto de acceso y el otro debe permitir inyección de paquetes.
+
+------------
+
 
 # Documentación
  (Versión desactualizada.)
 Instalación y uso de awitas: <br>
 https://www.youtube.com/watch?v=3DR7mcSR4Oo
 
-# Soporte
+------------
+
+
+# Openwrt
+
+Testado en:
+- *glinet ar150*
+- *netgear r6100*
+
+
+------------
 
 
 
@@ -48,22 +69,30 @@ Descargamos proyecto
 git clone https://github.com/javierbu/awitas.git
 cd awitas
 ```
-Instalamos dependencias:
+Instalamos dependencias y ejecutamos:
 
-En debian ( Kali, Parrot, raspOS )
+**En debian ( Kali, Parrot, raspOS )**
 ```
 sudo bash dependencias.sh
-```
-En openwrt
-```
-ash dependencias_ow.sh
-```
-En Wifislax no es necesario instalar dependencias.
-
-Uso
-```
 sudo bash awitas.sh
 ```
+**En openwrt**
+```
+ash dependencias_ow.sh
+bash awitas.sh
+```
+**En Wifislax **
+
+No es necesario instalar dependencias.
+
+
+```
+bash awitas.sh
+```
+
+------------
+
+
 
 # Notas de interés
 
@@ -71,14 +100,13 @@ sudo bash awitas.sh
 - Se crea una carpeta /tmp/awitas/ donde se almacenan distintas variables y salidas de comandos importantes. Muy útil para depurar si algo no funciona.
 - No todos los chipsets funcionan de igual manera. Asegúrate que el chipset de tu dispositivo es capaz de hacer lo que le vas a pedir.
 
-# Sobre chipsets:
+
+------------
 
 
-- **8814au.** https://github.com/morrownr/8814au . Funciona perfectamente tanto en 2,4 GHz como en 5 GHz. Es válido tanto para la creación de punto de acceso como para el ataque DoS.
-- **8812au.** https://github.com/morrownr/8812au-20210629 . Funciona muy bien para la creación del punto de acceso tanto en 5GHz como en 2,4 GHz. No funciona para el ataque DoS. 
-- **brcmfmac.** Es el integrado de la raspberry 4b. Funciona muy bien para la creación del punto de acceso en ambas bandas. No sirve para el ataque DoS.
-- **ath9k_htc.** Solo trabaja en 2,4 GHz. Funciona muy bien para el ataque DoS. Presenta algunos fallos creando el punto de acceso. Es posible que estos fallos sean en mi dispositivo concreto.
-- **rtl8187.** Solo trabaja en 2,4 GHz. Funciona muy bien para el ataque DoS. No soporta la opción de crear punto de acceso.
 
    
 
+
+[7]: http://https://i.postimg.cc/MTdQ1mCM/awitas.png
+[6]: https://i.postimg.cc/MTdQ1mCM/awitas.png
