@@ -1,5 +1,6 @@
 #!/bin/bash
 version=1.0
+## Para soporte, lloros y quejas, empaquetar /tmp/awitas/ y compartirlo junto con el problema javierbu @ proton me
 ########################### byTux0
 ### Este script esta inspirado en el trabajo de Koala633 con su trabajo hostbase. https://github.com/Koala633/hostbase ###
 ###
