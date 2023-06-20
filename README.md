@@ -64,11 +64,24 @@ Testado en:
 
 
 Descargamos proyecto
+
+**En debian, Wifislax ( Wifislax, Kali, Parrot, raspOS )**
 ```
 git clone https://github.com/javierbu/awitas.git
 cd awitas
 ```
+**En openwrt**
+
+Descargamos en proyecto en nuestro equipo y lo pasamos al dispositivo con openwrt. Ej.
+```
+git clone https://github.com/javierbu/awitas.git
+scp -r awitas/ root@192.168.1.1:/root/
+ssh root@192.168.1.1
+cd awitas
+```
+
 Instalamos dependencias y ejecutamos:
+
 
 **En debian ( Kali, Parrot, raspOS )**
 ```
@@ -80,7 +93,7 @@ sudo bash awitas.sh
 ash dependencias_ow.sh
 bash awitas.sh
 ```
-**En Wifislax **
+**En Wifislax**
 
 No es necesario instalar dependencias.
 
