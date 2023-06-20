@@ -469,7 +469,7 @@ do
 		escuchar_wps
 	fi
 	if ( grep -q "network=" ${pwd}pbc.conf ) ;then
-		grep "$nombre_ap" ${pwd}pbc.conf
+		grep "00000000" ${pwd}pbc.conf
 		if [ $? -ne 0 ];then
 			cp ${pwd}pbc.conf  ${red}_WPA.txt
 			echo;echo -e "${VERDE}		Ole !!! hemos conseguido la llave!${BLANCO}"
