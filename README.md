@@ -6,12 +6,12 @@ Ataque WPS transparente con rogue AP
 
 Es una herramienta de auditoría wireless válida para profesionales y para auditar nuestras propias redes y su seguridad.
 
-Un script guiado para llevar a cabo el ataque evil twin o rogue AP. La diferencia es que no se le pide la clave WPA al usuario. En su lugar se le pide que pulse el botón WPS de su router.
+Un script guiado para llevar a cabo el ataque evil twin o rogue AP. La diferencia respecto a los proyectos existentes habitaules, es que no se le pide la clave WPA al usuario. En su lugar se le pide que pulse el botón WPS de su router y de esa manera conseguiremos la clave.
 Para que el atque sea efectivo se requiere cercanía a nuestros objetivos y que el usuario atacado caiga en la trampa que se le monta.
 
 Cuenta con la peculiaridad de que a los clientes windows (10 y 11) se les puede montar un punto de acceso falso protegido con WPA, lo que hace más creíble la trampa. La conexión para el usuario es transparente y mediante WPS.
 
-Awitas está inspirado en el trabajod e Koala:
+Awitas está inspirado en el trabajo de Koala:
 https://github.com/Koala633/hostbase/tree/master/hostbase-1.4ES
 
 ------------
@@ -29,13 +29,13 @@ https://github.com/Koala633/hostbase/tree/master/hostbase-1.4ES
 
 
 # Requerimientos
-Es preciso contar con al menos 2 dispositivos wifi. 1 de ellos debe soportar el modo punto de acceso y el otro debe permitir inyección de paquetes.
+Es preciso contar con al menos 2 dispositivos wifi. 1 de ellos debe soportar el modo punto de acceso y el otro debe permitir inyección de paquetes y ataque de desautenticación.
 
 ------------
 
 
 # Documentación
- (Versión desactualizada.)
+ (Versión muy desactualizada.)
 Instalación y uso de awitas: <br>
 https://www.youtube.com/watch?v=3DR7mcSR4Oo
 
