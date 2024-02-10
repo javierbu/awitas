@@ -626,7 +626,7 @@ do
     	else
     		monitor poner  &>/dev/null
 	fi
-	if [ $mdk4 = si ];then
+	if [ "$mdk4" = "si" ];then
 		timeout --preserve-status --foreground $tiempo_mdk4 mdk4 $iface_mon e -t $macap -l &>>${pwd}mdk4
 	else
 		aireplay-ng -0 $desaut -a $macap -c $mac_estacion $iface_mon --ignore-negative-one &>>${pwd}aireplay
