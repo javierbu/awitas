@@ -46,7 +46,7 @@ https://www.youtube.com/watch?v=3DR7mcSR4Oo
 
 Impotante: Para la ejecución de awitas en openwrt, es necesario que el/los dispositivo/s wifi del router no estén trabajando, ni en modo clinete ni en modo máster.
 
-Testado en:
+Testado con exito version de openwrt 22.03.6 en:
 - *glinet ar150*
 - *netgear r6100*
 
