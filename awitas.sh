@@ -963,7 +963,7 @@ clear
 banner
 echo;echo -e "${CYAN} En la cabecera del sript puedes configurar algunas cosas. Quiza te venga bien."
 echo;echo -e "${AMARILLO}[::]${BLANCO} Bienvenido a awitas."
-if [ ! -e oui.txt ];then
+if [ ! -e oui.txt ] && [ "$openwrt" != "1" ];then
 	echo -e "${ROJO}[!!]${BLANCO} No tienes el archivo oui.txt. Este archivo servira para aportar informacion sobre los dispositivos que tratemos de atacar. No es necesario, pero es aconsejable.";echo
 	echo -e "${AMARILLO}[::]${BLANCO} Escribe \"si\" para descargarlo o enter para no hacerlo. Si lo descargas ya no volveras a ver este mensaje. Escribe "cansino" si no quieres vover a ver este mensaje, pero tampoco descargar el archivo.  "
 	echo;echo -ne "${AMARILLO}[??]${BLANCO} Respuesta: "
