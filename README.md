@@ -46,9 +46,6 @@ https://www.youtube.com/watch?v=3DR7mcSR4Oo
 
 Impotante: Para la ejecución de awitas en openwrt, es necesario que el/los dispositivo/s wifi del router no estén trabajando, ni en modo clinete ni en modo máster.
 
-Testado con exito version de openwrt 22.03.6 en:
-- *glinet ar150*
-- *netgear r6100*
 
 
 ------------
@@ -109,7 +106,12 @@ bash awitas.sh
 
 
 ------------
+# Ultimos cambios
 
+4-abril-2024
+- Se compatibiliza a las versiones actuales de openwrt. Hubo problemas en las últimas actualizaciones ya que cambiaron algunos parámetros en el firewall y actaulizaron a dnsmasq 2.90. Esto dio algunos problemas, pero ya están solucionados.
+- Se repara la opción de descargar el archivo oui.txt cuando estamos conectados a internet a través de wifi.
+- Se añade un modelo ZTE h3600P (DIGI) de router parea ataque concreto al router.
 
 
    
