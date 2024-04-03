@@ -442,7 +442,7 @@ elif [ "$modelo" == "ZTE" ];then
         echo -e '<br>'
         echo -e '<br>'
         echo -e '<italic-black>'
-        echo -e 'Las luces indicativa de WPS parpadeará durante la sincronización.'
+        echo -e 'La luz indicativa de WPS parpadeará durante la sincronización.'
         echo -e '<br>'
         echo -e '<img style=\"width:100%; max-width: 100%;\" src=\"/images/Luces-zte.png\" alt=\"Luces WPS\"><br>'
         echo -e '</italic-black>'
