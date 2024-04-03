@@ -1148,6 +1148,7 @@ if [ $? -eq 0 ];then
  	estado=$(uci get firewall.@defaults[0].input)
 	if [ $estado = "REJECT" ];then
 		uci set firewall.@defaults[0].input=ACCEPT
+  		/etc/init.d/firewall restart
 	fi
 
 fi
