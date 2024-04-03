@@ -963,28 +963,28 @@ clear
 banner
 echo;echo -e "${CYAN} En la cabecera del sript puedes configurar algunas cosas. Quiza te venga bien."
 echo;echo -e "${AMARILLO}[::]${BLANCO} Bienvenido a awitas."
+if [ ! -e oui.txt ];then
+	echo -e "${ROJO}[!!]${BLANCO} No tienes el archivo oui.txt. Este archivo servira para aportar informacion sobre los dispositivos que tratemos de atacar. No es necesario, pero es aconsejable.";echo
+	echo -e "${AMARILLO}[::]${BLANCO} Escribe \"si\" para descargarlo o enter para no hacerlo. Si lo descargas ya no volveras a ver este mensaje. Escribe "cansino" si no quieres vover a ver este mensaje, pero tampoco descargar el archivo.  "
+	echo;echo -ne "${AMARILLO}[??]${BLANCO} Respuesta: "
+	read respuesta
+	if [ "$respuesta" = si ];then
+		echo -e "${VERDE}[>>]${BLANCO} Descargando..."
+		wget  https://standards-oui.ieee.org/oui/oui.txt &>/dev/null
+		echo -e "${VERDE}[::]${BLANCO} Descargado!. Enter para continuar. "
+		read; empezar
+	elif [ "$respuesta" == "cansino" ];then
+		touch oui.txt
+	else
+		echo -e "${AMARILLO}[::]${BLANCO} Ok. Tu sabras.";echo
+	fi
+fi
 if [ "$openwrt" != "1" ];then
 	/etc/rc.d/rc.networkmanager stop >/dev/null 2>&1
 	systemctl stop NetworkManager >/dev/null 2>&1
         systemctl stop wpa_supplicant >/dev/null 2>&1
 	systemctl stop NetworkManager.service >/dev/null 2>&1
 	service wpa_supplicant stop >/dev/null 2>&1
-	if [ ! -e oui.txt ];then
-		echo -e "${ROJO}[!!]${BLANCO} No tienes el archivo oui.txt o no esta actualizado. Este archivo servira para aportar informacion sobre los dispositivos que tratemos de atacar. No es necesario, pero es aconsejable.";echo
-		echo -e "${AMARILLO}[::]${BLANCO} Escribe \"si\" para descargarlo o enter para no hacerlo. Si lo descargas ya no volveras a ver este mensaje. Escribe "cansino" si no quieres vover a ver este mensaje, pero tampoco descargar el archivo.  "
-		echo;echo -ne "${AMARILLO}[??]${BLANCO} Respuesta: "
-		read respuesta
-		if [ "$respuesta" = si ];then
-			echo -e "${VERDE}[>>]${BLANCO} Descargando..."
-			wget  https://standards-oui.ieee.org/oui/oui.txt &>/dev/null
-			echo -e "${VERDE}[::]${BLANCO} Descargado!. Enter para continuar. "
-			read; empezar
-		elif [ "$respuesta" == "cansino" ];then
-			touch oui.txt
-		else
-			echo -e "${AMARILLO}[::]${BLANCO} Ok. Tu sabras.";echo
-		fi
-	fi
 fi
 echo -e "${AMARILLO}[::]${BLANCO} Elige la banda en la que haremos el ataque:";echo
 echo -e "${AMARILLO}  1)${BLANCO}   Banda de 5 GHz."
