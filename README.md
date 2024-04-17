@@ -108,6 +108,11 @@ bash awitas.sh
 ------------
 # Ultimos cambios
 
+17-Abril-2024
+- Se prescinde (por fin) de airmon-ng
+- se repara ataque con mdk4
+- mejoras de ortografía, guías y varias.
+
 4-abril-2024
 - Se compatibiliza a las versiones actuales de openwrt. Hubo problemas en las últimas actualizaciones ya que cambiaron algunos parámetros en el firewall y actaulizaron a dnsmasq 2.90. Esto dio algunos problemas, pero ya están solucionados.
 - Se repara la opción de descargar el archivo oui.txt cuando estamos conectados a internet a través de wifi.
