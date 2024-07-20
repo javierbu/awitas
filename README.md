@@ -108,6 +108,10 @@ bash awitas.sh
 ------------
 # Ultimos cambios
 
+25-Julio-2024
+- Se añade soporte para routers Askey RTF3505VW y RTF8115VW gracias a  [danielcshn](https://github.com/danielcshn) por el aporte.
+
+
 17-Abril-2024
 - Se prescinde (por fin) de airmon-ng
 - Se repara ataque con mdk4
