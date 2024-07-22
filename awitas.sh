@@ -1243,59 +1243,91 @@ if ! [ $(id -u) = 0 ]; then
     read
     exit 1
 fi
-cat /etc/os-release | grep -q 'ID=parrot'
-if [ $? -eq 0 ];then
-    uname -m | grep aarch64 &>/dev/null
-    if [ $? -eq 0 ];then
-        kalirpi=1
-        touch ${pwd}Parrot_ARM
-    else
-        kali=1
-        touch ${pwd}Parrot
-    fi
-fi
-cat /etc/os-release | grep -q 'ID=kali' 
-if [ $? -eq 0 ];then
-    uname -m | grep aarch64 &>/dev/null
-    if [ $? -eq 0 ];then
-        kalirpi=1
-        touch ${pwd}Kali_ARM
-    else
-        kali=1
-        touch ${pwd}Kali
-    fi
-fi
-cat /etc/os-release | grep -i -q wifislax
-if [ $? -eq 0 ];then
-    wifislax=1
-    touch ${pwd}Wifislax
-fi
 
-cat /etc/os-release | grep -i -q openwrt 
-if [ $? -eq 0 ];then
-    openwrt=1
-    touch ${pwd}Openwrt
-    bandera=w
-    /etc/init.d/uhttpd stop &>/dev/null
-    /etc/init.d/lighttpd stop &>/dev/null
-    /etc/init.d/lighttpd disable &>/dev/null
-    estado=$(uci get firewall.@defaults[0].input)
-    if [ $estado = "REJECT" ];then
-        uci set firewall.@defaults[0].input=ACCEPT
-        /etc/init.d/firewall restart
-    fi
+# Inicializar variable para indicar si un sistema operativo ya ha sido detectado
+os_detected=0
 
-fi
-cat /etc/os-release | grep -q -i 'ID=debian' 
-if [ $? -eq 0 ];then
-    uname -m | grep aarch64 &>/dev/null
-    if [ $? -eq 0 ];then
-        raspos=1
-        touch ${pwd}RaspOS
-    else
-        debian=1
-        touch ${pwd}Debian
+# Detectar si el sistema operativo es Parrot v5 / v6
+detect_parrot() {
+    grep -q 'NAME="Parrot' /etc/os-release
+    if [ $? -eq 0 ]; then
+        os_detected=1
+        uname -m | grep aarch64 &>/dev/null
+        if [ $? -eq 0 ]; then
+            kalirpi=1
+            touch ${pwd}Parrot_ARM
+        else
+            kali=1
+            touch ${pwd}Parrot
+        fi
     fi
-fi
+}
+
+# Detectar si el sistema operativo es Kali Linux
+detect_kali() {
+    grep -q 'ID=kali' /etc/os-release
+    if [ $? -eq 0 ]; then
+        os_detected=1
+        uname -m | grep aarch64 &>/dev/null
+        if [ $? -eq 0 ]; then
+            kalirpi=1
+            touch ${pwd}Kali_ARM
+        else
+            kali=1
+            touch ${pwd}Kali
+        fi
+    fi
+}
+
+# Detectar si el sistema operativo es WiFiSLAX
+detect_wifislax() {
+    grep -i -q 'wifislax' /etc/os-release
+    if [ $? -eq 0 ];then
+        os_detected=1
+        wifislax=1
+        touch ${pwd}Wifislax
+    fi
+}
+
+# Detectar si el sistema operativo es OpenWRT
+detect_openwrt() {
+    grep -i -q 'openwrt' /etc/os-release
+    if [ $? -eq 0 ];then
+        os_detected=1
+        openwrt=1
+        touch ${pwd}Openwrt
+        bandera=w
+        /etc/init.d/uhttpd stop &>/dev/null
+        /etc/init.d/lighttpd stop &>/dev/null
+        /etc/init.d/lighttpd disable &>/dev/null
+        estado=$(uci get firewall.@defaults[0].input)
+        if [ $estado = "REJECT" ];then
+            uci set firewall.@defaults[0].input=ACCEPT
+            /etc/init.d/firewall restart
+        fi
+    fi
+}
+
+# Detectar si el sistema operativo es Debian
+detect_debian() {
+    grep -q -i 'ID=debian' /etc/os-release
+    if [ $? -eq 0 ];then
+        uname -m | grep aarch64 &>/dev/null
+        if [ $? -eq 0 ];then
+            raspos=1
+            touch ${pwd}RaspOS
+        else
+            debian=1
+            touch ${pwd}Debian
+        fi
+    fi
+}
+
+# Llamar a las funciones de deteccion en orden
+detect_parrot
+if [ $os_detected -eq 0 ]; then detect_kali; fi
+if [ $os_detected -eq 0 ]; then detect_wifislax; fi
+if [ $os_detected -eq 0 ]; then detect_openwrt; fi
+if [ $os_detected -eq 0 ]; then detect_debian; fi
 
 empezar
