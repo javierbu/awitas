@@ -1,8 +1,5 @@
 #!/bin/bash
 version=1.0
-# Establecer la codificación de carácter
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
 ## Para soporte, lloros y quejas, empaquetar /tmp/awitas/ y compartirlo junto con el problema javierbu @ proton me
 ########################### byTux0
 ### Este script está inspirado en el trabajo de Koala633 con su trabajo hostbase. https://github.com/Koala633/hostbase ###
@@ -1124,105 +1121,121 @@ fi
 }
 
 function empezar() {
-clear
-banner
-echo;echo -e "${CYAN} En la cabecera del script puedes configurar algunas cosas. Quizá te venga bien."
-echo;echo -e "${AMARILLO}[::]${BLANCO} Bienvenido a awitas. Un poco de paciencia, se está cociendo..."
-if [ ! -e oui.txt ] && [ "$openwrt" != "1" ];then
-    echo -e "${ROJO}[!!]${BLANCO} No tienes el archivo oui.txt. Este archivo servirá para aportar información sobre los dispositivos que tratemos de atacar. No es necesario, pero es aconsejable.";echo
-    echo -e "${AMARILLO}[::]${BLANCO} Escribe \"si\" para descargarlo o ENTER para no hacerlo. Si lo descargas ya no volverás a ver este mensaje. Escribe "cansino" si no quieres volver a ver este mensaje, pero tampoco descargar el archivo."
-    echo;echo -ne "${AMARILLO}[??]${BLANCO} Respuesta: "
-    read respuesta
-    if [ "$respuesta" = si ];then
-        echo -e "${VERDE}[>>]${BLANCO} Descargando..."
-        wget  https://standards-oui.ieee.org/oui/oui.txt &>/dev/null
-        echo -e "${VERDE}[::]${BLANCO} Descargado!. ENTER para continuar. "
-        read; empezar
-    elif [ "$respuesta" == "cansino" ];then
-        touch oui.txt
-    else
-        echo -e "${AMARILLO}[::]${BLANCO} Ok. Tu sabras.";echo
+    clear
+    banner
+    echo;echo -e "${CYAN} En la cabecera del script puedes configurar algunas cosas. Quizá te venga bien."
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Bienvenido a awitas. Un poco de paciencia, se está cociendo..."
+    if [ ! -e oui.txt ] && [ "$openwrt" != "1" ];then
+        echo -e "${ROJO}[!!]${BLANCO} No tienes el archivo oui.txt. Este archivo servirá para aportar información sobre los dispositivos que tratemos de atacar. No es necesario, pero es aconsejable.";echo
+        echo -e "${AMARILLO}[::]${BLANCO} Escribe \"si\" para descargarlo o ENTER para no hacerlo. Si lo descargas ya no volverás a ver este mensaje. Escribe "cansino" si no quieres volver a ver este mensaje, pero tampoco descargar el archivo."
+        echo;echo -ne "${AMARILLO}[??]${BLANCO} Respuesta: "
+        read respuesta
+        if [ "$respuesta" = si ]; then
+                # Iniciar la descarga en segundo plano y capturar el PID
+                wget https://standards-oui.ieee.org/oui/oui.txt -q &
+                PID=$!
+    
+                # Animación mientras se descarga el archivo
+                while kill -0 $PID 2> /dev/null; do
+                    for i in "" "." ".." "..." "   "; do
+                        echo -ne "\r${VERDE}[>>]${BLANCO} Descargando${i} "
+                        sleep 0.5
+                    done
+                done
+                
+                wait $PID
+                
+                if [ $? -eq 0 ]; then
+                    echo -e "\r${VERDE}[::]${BLANCO} ¡Descargado! ENTER para continuar."
+                    read; empezar
+                else
+                    echo -e "\r${ROJO}[!!]${BLANCO} Error al descargar el archivo."
+                fi
+        elif [ "$respuesta" == "cansino" ];then
+            touch oui.txt
+        else
+            echo -e "${AMARILLO}[::]${BLANCO} Ok. Tu sabras.";echo
+        fi
     fi
-fi
-if [ "$openwrt" != "1" ];then
-    /etc/rc.d/rc.networkmanager stop >/dev/null 2>&1
-    systemctl stop NetworkManager >/dev/null 2>&1
-    systemctl stop wpa_supplicant >/dev/null 2>&1
-    systemctl stop NetworkManager.service >/dev/null 2>&1
-    service wpa_supplicant stop >/dev/null 2>&1
-fi
-eleccion_dispositivo
-echo -e "${AMARILLO}[::]${BLANCO} Para hacer el ataque en la banda de 5 GHz, necesitamos que el dispositivo que haga el DoS inyecte en la banda de 5 GHz"
-echo -e "${AMARILLO}[::]${BLANCO} Elige la banda en la que haremos el ataque:";echo
-echo -e "${AMARILLO}  1)${BLANCO}   Banda de 5 GHz."
-echo -e "${AMARILLO}  2)${BLANCO}   Banda de 2,4 GHz."
-echo;echo -ne "${AMARILLO}[??]${BLANCO} Opción: "
-read banda
-if [ -z $banda ];then
-    echo -ne "${ROJO}[!!]${BLANCO} Tienes que escribir uno de los números que se te proponen. Tan difícil es? pulsa ENTER para repetir."
-    read
-    empezar
-fi
-validar_numero $banda empezar
-if [ $banda -eq 1 ];then 
-    banda5=si
-    canal=100
-elif [ $banda -eq "2" ];then
-    banda5=no
-    canal=6
-else
-    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $banda${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
-    read
-    empezar
-fi
-clear
-banner
-if [ $banda5 = si ];then
-    echo;echo -e "${VIOLETA}[::]${BLANCO} El ataque se hará sobre la banda de 5 GHz"
-else
-    echo;echo -e "${VIOLETA}[::]${BLANCO} El ataque se hará sobre la banda de 2,4 GHz"
-fi
-echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que vamos a hacer es elegir un dispositivo para crear nuestro punto de acceso."
-echo -e "${AMARILLO}[::]${BLANCO} El punto de acceso siempre se hará sobre la banda de 2,4 GHz, por lo que no es necesario que el dispositivo trabaje en 5 GHz"
-echo -e "${AMARILLO}[::]${BLANCO} Por favor, ten en cuenta que el dispositivo tiene que soportar la opción de crear puto de acceso."
-eleccion_dispositivo
-echo;echo -e "${AMARILLO}[::]${BLANCO} Elige un dispositivo para crear nuestro punto de acceso.";echo
-cuenta=1
-for i in `cat ${pwd}lista_interfaces`
-do
-    echo -e " ${AMARILLO}${cuenta})${BLANCO}  $i "
-    cuenta=$((cuenta+1))
-done
-cuenta=$((cuenta-1))
-if [ $cuenta -eq 0 ];then
-    echo -ne "${ROJO}[!!]${BLANCO} Es en serio? necesitas 2 dispositivos wireless para hacer el ataque y no tienes conectado ninguno. Pero tú sabes loque estás haciendo? Anda, introduce 2 dispositivos y pulsa ENTER para repetir."
-    read
-    empezar
-elif [ "$cuenta" == "1" ];then
-    echo -ne "${ROJO}[!!]${BLANCO} Solo se ha detectado 1 adaptador wireless. Así no podemos hacer el ataque. Introduce otro más y pulsa ENTER para repetir."
-    read
-    empezar
-fi
-echo;echo -ne "${AMARILLO}[??]${BLANCO} Debes estar seguro de que soporta el modo AP. Opción: "
-read opcion
-if [ -z $opcion ];then
-    echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
-    read
-    empezar
-fi
-validar_numero $opcion empezar
-if [ $opcion -le $cuenta ]; then
-    cuenta=$((cuenta+1))
-    sed -n ${opcion}p ${pwd}lista_interfaces | cut -f 1 >${pwd}iface_ap
-    iface_ap=`cat ${pwd}iface_ap`
-    echo -e "${AMARILLO}[::]${BLANCO} Ok!. Usaremos ${VERDE}$iface_ap ${BLANCO}para crear nuestro punto de acceso. Pulsa ENTER para continuar."
-    read
-else
-    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
-    read
-    empezar
-fi
-elegir_monitor
+    if [ "$openwrt" != "1" ];then
+        /etc/rc.d/rc.networkmanager stop >/dev/null 2>&1
+        systemctl stop NetworkManager >/dev/null 2>&1
+        systemctl stop wpa_supplicant >/dev/null 2>&1
+        systemctl stop NetworkManager.service >/dev/null 2>&1
+        service wpa_supplicant stop >/dev/null 2>&1
+    fi
+    eleccion_dispositivo
+    echo -e "${AMARILLO}[::]${BLANCO} Para hacer el ataque en la banda de 5 GHz, necesitamos que el dispositivo que haga el DoS inyecte en la banda de 5 GHz"
+    echo -e "${AMARILLO}[::]${BLANCO} Elige la banda en la que haremos el ataque:";echo
+    echo -e "${AMARILLO}  1)${BLANCO}   Banda de 5 GHz."
+    echo -e "${AMARILLO}  2)${BLANCO}   Banda de 2,4 GHz."
+    echo;echo -ne "${AMARILLO}[??]${BLANCO} Opción: "
+    read banda
+    if [ -z $banda ];then
+        echo -ne "${ROJO}[!!]${BLANCO} Tienes que escribir uno de los números que se te proponen. Tan difícil es? pulsa ENTER para repetir."
+        read
+        empezar
+    fi
+    validar_numero $banda empezar
+    if [ $banda -eq 1 ];then 
+        banda5=si
+        canal=100
+    elif [ $banda -eq "2" ];then
+        banda5=no
+        canal=6
+    else
+        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $banda${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
+        read
+        empezar
+    fi
+    clear
+    banner
+    if [ $banda5 = si ];then
+        echo;echo -e "${VIOLETA}[::]${BLANCO} El ataque se hará sobre la banda de 5 GHz"
+    else
+        echo;echo -e "${VIOLETA}[::]${BLANCO} El ataque se hará sobre la banda de 2,4 GHz"
+    fi
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que vamos a hacer es elegir un dispositivo para crear nuestro punto de acceso."
+    echo -e "${AMARILLO}[::]${BLANCO} El punto de acceso siempre se hará sobre la banda de 2,4 GHz, por lo que no es necesario que el dispositivo trabaje en 5 GHz"
+    echo -e "${AMARILLO}[::]${BLANCO} Por favor, ten en cuenta que el dispositivo tiene que soportar la opción de crear puto de acceso."
+    eleccion_dispositivo
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Elige un dispositivo para crear nuestro punto de acceso.";echo
+    cuenta=1
+    for i in `cat ${pwd}lista_interfaces`
+    do
+        echo -e " ${AMARILLO}${cuenta})${BLANCO}  $i "
+        cuenta=$((cuenta+1))
+    done
+    cuenta=$((cuenta-1))
+    if [ $cuenta -eq 0 ];then
+        echo -ne "${ROJO}[!!]${BLANCO} Es en serio? necesitas 2 dispositivos wireless para hacer el ataque y no tienes conectado ninguno. Pero tú sabes loque estás haciendo? Anda, introduce 2 dispositivos y pulsa ENTER para repetir."
+        read
+        empezar
+    elif [ "$cuenta" == "1" ];then
+        echo -ne "${ROJO}[!!]${BLANCO} Solo se ha detectado 1 adaptador wireless. Así no podemos hacer el ataque. Introduce otro más y pulsa ENTER para repetir."
+        read
+        empezar
+    fi
+    echo;echo -ne "${AMARILLO}[??]${BLANCO} Debes estar seguro de que soporta el modo AP. Opción: "
+    read opcion
+    if [ -z $opcion ];then
+        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
+        read
+        empezar
+    fi
+    validar_numero $opcion empezar
+    if [ $opcion -le $cuenta ]; then
+        cuenta=$((cuenta+1))
+        sed -n ${opcion}p ${pwd}lista_interfaces | cut -f 1 >${pwd}iface_ap
+        iface_ap=`cat ${pwd}iface_ap`
+        echo -e "${AMARILLO}[::]${BLANCO} Ok!. Usaremos ${VERDE}$iface_ap ${BLANCO}para crear nuestro punto de acceso. Pulsa ENTER para continuar."
+        read
+    else
+        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
+        read
+        empezar
+    fi
+    elegir_monitor
 }
 
 function elegir_monitor() {
