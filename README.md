@@ -101,6 +101,9 @@ bash awitas.sh
 
 25-Julio-2024
 - Se añade soporte para routers Askey RTF3505VW y RTF8115VW gracias a  [danielcshn](https://github.com/danielcshn) por el aporte.
+- Se soluciona problema de detección de Parrot Security 6.1 (lorikeet).
+- Se añade animación de descarga de archivo oui.txt.
+- Mejoras de ortografía, espaciado y sangría.
 
 17-Abril-2024
 - Se prescinde (por fin) de airmon-ng
