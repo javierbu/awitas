@@ -108,6 +108,9 @@ bash awitas.sh
 ------------
 # Ultimos cambios
 
+8-Agosto-2024
+- Se implementa posibilidad de auditar vulnerabilidad pixie-dust.
+
 25-Julio-2024
 - Se añade soporte para routers Askey RTF3505VW y RTF8115VW gracias a  [danielcshn](https://github.com/danielcshn) por el aporte.
 
