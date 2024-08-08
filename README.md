@@ -38,6 +38,7 @@ Es preciso contar con al menos 2 dispositivos wifi. 1 de ellos debe soportar el 
  
 Instalación y uso de awitas: <br>
 https://www.youtube.com/watch?v=iBe-aV4MNiQ
+(La versión que se mnuestrea en el vídeo está desactualizada)
 
 ------------
 
